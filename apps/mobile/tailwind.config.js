@@ -4,4 +4,5 @@ const baseConfig = require("@hugg/config/tailwind.config.base");
 module.exports = {
   ...baseConfig,
   content: ["./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  presets: [require("nativewind/preset")],
 };

@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "hugg",
+    "slug": "hugg",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "hugg",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.hugg.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.hugg.app"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
