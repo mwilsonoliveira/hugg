@@ -1,0 +1,14 @@
+{
+  "name": "@hugg/config",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./tailwind.config.base": "./tailwind.config.base.js",
+    "./eslint.config.base": "./eslint.config.base.js"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.4.0"
+  }
+}
