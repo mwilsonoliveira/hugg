@@ -17,6 +17,7 @@ export function EditPetForm({ pet }: EditPetFormProps) {
     try {
       await updatePet(pet.id, data);
       toast.success("Pet atualizado com sucesso!");
+      router.refresh();
       router.push(`/pets/${pet.id}`);
     } catch {
       toast.error("Erro ao salvar alterações. Tente novamente.");
