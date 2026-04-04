@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import type { Pet } from "@hugg/types";
+import type { PetResponse } from "@hugg/schemas";
 import { waitingLabel, speciesLabel } from "@hugg/utils";
 
 interface PetCardProps {
-  pet: Pet;
+  pet: PetResponse;
 }
 
 export function PetCard({ pet }: PetCardProps) {
