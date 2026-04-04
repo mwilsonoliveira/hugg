@@ -28,7 +28,11 @@ export function HomePageContent({ initialData }: HomePageContentProps) {
   const debouncedSearch = useDebounce(search, 500);
 
   const fetchPets = useCallback(
-    async (currentSearch: string, currentFilter: string, currentPage: number) => {
+    async (
+      currentSearch: string,
+      currentFilter: string,
+      currentPage: number,
+    ) => {
       setLoading(true);
       try {
         const [result] = await Promise.all([
@@ -89,9 +93,11 @@ export function HomePageContent({ initialData }: HomePageContentProps) {
           {/* Branding row */}
           <div className="flex items-center justify-between py-3">
             <div className="flex items-center gap-2">
-              <HuggLogo className="w-10 h-7 text-gray-900" />
               <div>
-                <span className="text-xl font-bold text-gray-900">hugg</span>
+                <span className="flex gap-2 items-center text-xl font-bold text-gray-900">
+                  hugg
+                  <HuggLogo className="text-gray-900" />
+                </span>
                 <p className="text-xs text-gray-400 leading-none mt-0.5">
                   Conectando pets desabrigados a novos lares.
                 </p>
