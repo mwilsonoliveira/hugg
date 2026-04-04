@@ -10,10 +10,9 @@ interface BreedComboboxProps {
   value: string;
   onChange: (value: string) => void;
   error?: string;
-  forceDisabled?: boolean;
 }
 
-export function BreedCombobox({ species, value, onChange, error, forceDisabled = false }: BreedComboboxProps) {
+export function BreedCombobox({ species, value, onChange, error }: BreedComboboxProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -27,8 +26,8 @@ export function BreedCombobox({ species, value, onChange, error, forceDisabled =
     return breeds.filter((b) => b.toLowerCase().includes(query.toLowerCase()));
   }, [breeds, query]);
 
-  const disabled = forceDisabled || !species || species === "OTHER" || breeds.length === 0;
-  const displayValue = forceDisabled ? "" : value;
+  const disabled = !species || species === "OTHER" || breeds.length === 0;
+  const displayValue = value;
 
   const handleSelect = (breed: string) => {
     onChange(breed === value ? "" : breed);
@@ -57,9 +56,7 @@ export function BreedCombobox({ species, value, onChange, error, forceDisabled =
             } ${error ? "border-red-400" : ""}`}
           >
             <span className={displayValue ? "text-gray-900" : "text-gray-400"}>
-              {forceDisabled
-                ? "Sem raça definida"
-                : displayValue || (disabled ? "Selecione uma espécie primeiro" : "Selecione a raça")}
+              {displayValue || (disabled ? "Selecione uma espécie primeiro" : "Selecione a raça")}
             </span>
             <div className="flex items-center gap-1">
               {displayValue && !disabled && (

@@ -1,7 +1,10 @@
 import { z } from "zod";
 
+export const SRD_LABEL = "Sem raça definida (SRD)";
+
 export const BREEDS_BY_SPECIES = {
   DOG: [
+    SRD_LABEL,
     "Akita",
     "American Bully",
     "Basenji",
@@ -38,6 +41,7 @@ export const BREEDS_BY_SPECIES = {
     "Yorkshire Terrier",
   ],
   CAT: [
+    SRD_LABEL,
     "Abissínio",
     "Angorá Turco",
     "Azul Russo",
@@ -53,9 +57,9 @@ export const BREEDS_BY_SPECIES = {
     "Ragdoll",
     "Scottish Fold",
     "Siamês",
-    "SRD (Sem Raça Definida)",
   ],
   BIRD: [
+    SRD_LABEL,
     "Agapornis (Pássaro do Amor)",
     "Arara Azul",
     "Arara Vermelha",
@@ -72,6 +76,7 @@ export const BREEDS_BY_SPECIES = {
     "Trinca-ferro",
   ],
   RABBIT: [
+    SRD_LABEL,
     "Angorá",
     "Dutch (Holandês)",
     "Fuzzy Lop",
@@ -97,8 +102,6 @@ export const situationSchema = z.enum(["SHELTER", "ABANDONED", "FOSTER", "STREET
 });
 export const adoptionStatusSchema = z.enum(["PENDING", "APPROVED", "REJECTED"]);
 
-const SPECIES_WITH_BREEDS = ["DOG", "CAT", "BIRD", "RABBIT"] as const;
-
 const petBaseSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
   species: speciesSchema,
@@ -120,9 +123,10 @@ const petBaseSchema = z.object({
   longitude: z.number().optional(),
 });
 
+const SPECIES_WITH_BREEDS = ["DOG", "CAT", "BIRD", "RABBIT"] as const;
+
 export const createPetSchema = petBaseSchema.superRefine((data, ctx) => {
-  const needsBreed = (SPECIES_WITH_BREEDS as readonly string[]).includes(data.species);
-  if (needsBreed && !data.breed) {
+  if ((SPECIES_WITH_BREEDS as readonly string[]).includes(data.species) && !data.breed) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: "Selecione a raça ou marque Sem raça definida",

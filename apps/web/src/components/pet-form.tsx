@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   createPetSchema,
   type CreatePetInput,
   type Species,
+  SRD_LABEL,
 } from "@hugg/schemas";
 import { ImageDropzone } from "@/components/image-dropzone";
 import { BreedCombobox } from "@/components/breed-combobox";
@@ -28,7 +29,6 @@ const SITUATION_OPTIONS = [
 
 interface PetFormProps {
   defaultValues?: Partial<CreatePetInput>;
-  defaultMixedBreed?: boolean;
   onSubmit: (data: CreatePetInput) => Promise<void>;
   submitLabel: string;
   submittingLabel: string;
@@ -36,7 +36,6 @@ interface PetFormProps {
 
 export function PetForm({
   defaultValues,
-  defaultMixedBreed = false,
   onSubmit,
   submitLabel,
   submittingLabel,
@@ -52,28 +51,19 @@ export function PetForm({
     defaultValues,
   });
 
-  const selectedSpecies = useWatch({ control, name: "species" }) as
-    | Species
-    | "";
-  const isSRD = defaultMixedBreed || defaultValues?.breed === "SRD";
-  const [mixedBreed, setMixedBreed] = useState(isSRD);
+  const selectedSpecies = useWatch({ control, name: "species" }) as Species | "";
+  const selectedBreed = useWatch({ control, name: "breed" }) as string | undefined;
+  const mixedBreed = selectedBreed === SRD_LABEL;
 
-  // Garante que o estado inicial reflita corretamente o SRD vindo do backend
-  const hasMounted = useRef(false);
+  // Limpa a raça quando a espécie muda, mas não no mount inicial (edição)
+  const isFirstRender = useRef(true);
   useEffect(() => {
-    if (!hasMounted.current) {
-      hasMounted.current = true;
-      setMixedBreed(isSRD);
-      return;
-    }
-    // Limpa a raça quando a espécie muda após o mount
-    setValue("breed", isSRD ? "SRD" : undefined);
-    setMixedBreed(false);
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    setValue("breed", undefined);
   }, [selectedSpecies]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleMixedBreedChange = (checked: boolean) => {
-    setMixedBreed(checked);
-    setValue("breed", checked ? "SRD" : undefined, {
+    setValue("breed", checked ? SRD_LABEL : undefined, {
       shouldDirty: true,
       shouldValidate: true,
     });
@@ -155,10 +145,9 @@ export function PetForm({
               render={({ field }) => (
                 <BreedCombobox
                   species={selectedSpecies}
-                  value={field.value === "SRD" ? "" : (field.value ?? "")}
+                  value={field.value ?? ""}
                   onChange={field.onChange}
                   error={errors.breed?.message}
-                  forceDisabled={mixedBreed}
                 />
               )}
             />
