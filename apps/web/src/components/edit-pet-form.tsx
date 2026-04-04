@@ -42,11 +42,12 @@ export function EditPetForm({ pet }: EditPetFormProps) {
 
       <PetForm
         key={pet.id}
+        defaultMixedBreed={pet.breed === "SRD"}
         defaultValues={{
           name: pet.name,
           species: pet.species,
           situation: pet.situation,
-          breed: pet.breed ?? undefined,
+          breed: pet.breed === "SRD" ? "SRD" : (pet.breed ?? undefined),
           age: pet.age ?? undefined,
           description: pet.description ?? undefined,
           imageUrls: pet.imageUrls,

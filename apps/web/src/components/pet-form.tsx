@@ -3,7 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createPetSchema, type CreatePetInput, type Species } from "@hugg/schemas";
+import {
+  createPetSchema,
+  type CreatePetInput,
+  type Species,
+} from "@hugg/schemas";
 import { ImageDropzone } from "@/components/image-dropzone";
 import { BreedCombobox } from "@/components/breed-combobox";
 
@@ -24,6 +28,7 @@ const SITUATION_OPTIONS = [
 
 interface PetFormProps {
   defaultValues?: Partial<CreatePetInput>;
+  defaultMixedBreed?: boolean;
   onSubmit: (data: CreatePetInput) => Promise<void>;
   submitLabel: string;
   submittingLabel: string;
@@ -31,6 +36,7 @@ interface PetFormProps {
 
 export function PetForm({
   defaultValues,
+  defaultMixedBreed = false,
   onSubmit,
   submitLabel,
   submittingLabel,
@@ -46,25 +52,31 @@ export function PetForm({
     defaultValues,
   });
 
-  const selectedSpecies = useWatch({ control, name: "species" }) as Species | "";
-  const [mixedBreed, setMixedBreed] = useState(
-    () => defaultValues?.breed === "SRD",
-  );
+  const selectedSpecies = useWatch({ control, name: "species" }) as
+    | Species
+    | "";
+  const isSRD = defaultMixedBreed || defaultValues?.breed === "SRD";
+  const [mixedBreed, setMixedBreed] = useState(isSRD);
 
-  // Limpa a raça quando a espécie muda, mas não no mount inicial (edição)
-  const isFirstRender = useRef(true);
+  // Garante que o estado inicial reflita corretamente o SRD vindo do backend
+  const hasMounted = useRef(false);
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      setMixedBreed(isSRD);
       return;
     }
-    setValue("breed", undefined);
+    // Limpa a raça quando a espécie muda após o mount
+    setValue("breed", isSRD ? "SRD" : undefined);
     setMixedBreed(false);
-  }, [selectedSpecies, setValue]);
+  }, [selectedSpecies]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleMixedBreedChange = (checked: boolean) => {
     setMixedBreed(checked);
-    setValue("breed", checked ? "SRD" : undefined, { shouldDirty: true, shouldValidate: true });
+    setValue("breed", checked ? "SRD" : undefined, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
   };
 
   const toDateInputValue = (val: Date | string | undefined) => {
@@ -95,7 +107,9 @@ export function PetForm({
 
       {/* Informações básicas */}
       <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col gap-4">
-        <h2 className="text-sm font-semibold text-gray-700">Informações básicas</h2>
+        <h2 className="text-sm font-semibold text-gray-700">
+          Informações básicas
+        </h2>
 
         {/* Nome */}
         <div className="flex flex-col gap-1.5">
@@ -107,7 +121,9 @@ export function PetForm({
             placeholder="Ex: Bolinha"
             className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
           />
-          {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
+          {errors.name && (
+            <p className="text-xs text-red-500">{errors.name.message}</p>
+          )}
         </div>
 
         {/* Espécie + Raça */}
@@ -122,10 +138,14 @@ export function PetForm({
             >
               <option value="">Selecione</option>
               {SPECIES_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
               ))}
             </select>
-            {errors.species && <p className="text-xs text-red-500">{errors.species.message}</p>}
+            {errors.species && (
+              <p className="text-xs text-red-500">{errors.species.message}</p>
+            )}
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -135,7 +155,7 @@ export function PetForm({
               render={({ field }) => (
                 <BreedCombobox
                   species={selectedSpecies}
-                  value={field.value ?? ""}
+                  value={field.value === "SRD" ? "" : (field.value ?? "")}
                   onChange={field.onChange}
                   error={errors.breed?.message}
                   forceDisabled={mixedBreed}
@@ -166,14 +186,20 @@ export function PetForm({
             >
               <option value="">Selecione</option>
               {SITUATION_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
               ))}
             </select>
-            {errors.situation && <p className="text-xs text-red-500">{errors.situation.message}</p>}
+            {errors.situation && (
+              <p className="text-xs text-red-500">{errors.situation.message}</p>
+            )}
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">Idade (anos)</label>
+            <label className="text-sm font-medium text-gray-700">
+              Idade (anos)
+            </label>
             <input
               {...register("age", { valueAsNumber: true })}
               type="number"
@@ -181,7 +207,9 @@ export function PetForm({
               placeholder="Ex: 2"
               className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
             />
-            {errors.age && <p className="text-xs text-red-500">{errors.age.message}</p>}
+            {errors.age && (
+              <p className="text-xs text-red-500">{errors.age.message}</p>
+            )}
           </div>
         </div>
 
@@ -197,7 +225,9 @@ export function PetForm({
             max={new Date().toISOString().split("T")[0]}
             className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
           />
-          {errors.waitingSince && <p className="text-xs text-red-500">{errors.waitingSince.message}</p>}
+          {errors.waitingSince && (
+            <p className="text-xs text-red-500">Data inválida</p>
+          )}
         </div>
 
         {/* Descrição */}
@@ -211,7 +241,9 @@ export function PetForm({
             placeholder="Conte um pouco sobre o animal..."
             className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent resize-none"
           />
-          {errors.description && <p className="text-xs text-red-500">{errors.description.message}</p>}
+          {errors.description && (
+            <p className="text-xs text-red-500">{errors.description.message}</p>
+          )}
         </div>
       </div>
 
@@ -222,9 +254,25 @@ export function PetForm({
         className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white font-medium py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
       >
         {isSubmitting && (
-          <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+          <svg
+            className="animate-spin w-4 h-4"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v8H4z"
+            />
           </svg>
         )}
         {isSubmitting ? submittingLabel : submitLabel}

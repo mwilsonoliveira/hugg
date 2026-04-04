@@ -113,8 +113,8 @@ const petBaseSchema = z.object({
   description: z.string().min(1, "Descrição é obrigatória"),
   imageUrls: z.array(z.string()).min(1, "Adicione pelo menos uma foto"),
   waitingSince: z.coerce.date({
-    required_error: "Data é obrigatória",
-    invalid_type_error: "Data inválida",
+    required_error: "Informe uma data",
+    invalid_type_error: "Informe uma data",
   }),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
