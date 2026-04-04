@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { PetResponse } from "@hugg/schemas";
-import { waitingLabel, speciesLabel } from "@hugg/utils";
+import { waitingLabel } from "@hugg/utils";
 import { ShareButton } from "@/components/share-button";
 
 interface PetCardProps {
@@ -63,11 +63,6 @@ export function PetCard({ pet }: PetCardProps) {
           </div>
         )}
 
-        {/* Botão de compartilhar */}
-        <div className="absolute top-2 left-2" onClick={stopProp}>
-          <ShareButton petId={pet.id} petName={pet.name} situation={pet.situation} size="sm" />
-        </div>
-
         {/* Botão de like */}
         <button
           onClick={(e) => { stopProp(e); setLiked((v) => !v); }}
@@ -119,7 +114,9 @@ export function PetCard({ pet }: PetCardProps) {
       <div className="p-3 flex flex-col gap-1">
         <div className="flex items-center justify-between">
           <span className="font-semibold text-gray-900">{pet.name}</span>
-          <span className="text-xs text-gray-400">{speciesLabel(pet.species)}</span>
+          <div onClick={stopProp}>
+            <ShareButton petId={pet.id} petName={pet.name} situation={pet.situation} size="sm" />
+          </div>
         </div>
         <span className="text-xs text-gray-500">{waitingLabel(pet.waitingSince, pet.situation)}</span>
       </div>

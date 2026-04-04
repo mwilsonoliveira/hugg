@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { getPetById } from "@/lib/api";
 import { PetPhotoCarousel } from "@/components/pet-photo-carousel";
 import { speciesLabel, situationLabel, waitingDuration } from "@hugg/utils";
@@ -7,6 +8,34 @@ import { ShareButton } from "@/components/share-button";
 
 interface Props {
   params: { id: string };
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  try {
+    const pet = await getPetById(params.id);
+    const description = pet.description
+      ? `${pet.description.slice(0, 120)}...`
+      : `${pet.name} está aguardando um lar. Conheça no hugg e ajude a encontrar uma família.`;
+
+    return {
+      title: `${pet.name} · hugg`,
+      description,
+      openGraph: {
+        title: `${pet.name} está procurando um lar`,
+        description,
+        images: pet.imageUrls[0] ? [{ url: pet.imageUrls[0] }] : [],
+        type: "website",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${pet.name} está procurando um lar`,
+        description,
+        images: pet.imageUrls[0] ? [pet.imageUrls[0]] : [],
+      },
+    };
+  } catch {
+    return { title: "Pet · hugg" };
+  }
 }
 
 export default async function PetDetailPage({ params }: Props) {
