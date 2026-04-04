@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { PetResponse, PaginatedPets } from "@hugg/schemas";
 import { PetCard } from "@/components/pet-card";
+import { PetCardSkeleton } from "@/components/pet-card-skeleton";
 import { PetFilters } from "@/components/pet-filters";
 import { getPets } from "@/lib/api";
-import { waitingDays } from "@hugg/utils";
+import { useDebounce } from "@/hooks/use-debounce";
 
 const PAGE_SIZE = 6;
 
@@ -22,34 +23,43 @@ export function PetList({ initialData }: PetListProps) {
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
+  const debouncedSearch = useDebounce(search, 500);
+
   const fetchPets = useCallback(
-    async (newSearch: string, newFilter: string, newPage: number) => {
+    async (
+      currentSearch: string,
+      currentFilter: string,
+      currentPage: number,
+    ) => {
       setLoading(true);
       try {
-        const result = await getPets({
-          search: newSearch || undefined,
-          waitingFilter: newFilter || undefined,
-          page: newPage,
-          limit: PAGE_SIZE,
-        });
+        const [result] = await Promise.all([
+          getPets({
+            search: currentSearch || undefined,
+            waitingFilter: currentFilter || undefined,
+            page: currentPage,
+            limit: PAGE_SIZE,
+          }),
+          new Promise((resolve) => setTimeout(resolve, 600)),
+        ]);
         setPets(result.data);
         setTotal(result.total);
-        setPage(newPage);
+        setPage(currentPage);
       } finally {
         setLoading(false);
       }
     },
-    []
+    [],
   );
 
-  const handleSearchChange = (value: string) => {
-    setSearch(value);
-    fetchPets(value, waitingFilter, 1);
-  };
+  // Dispara fetch quando o search debounced muda
+  useEffect(() => {
+    fetchPets(debouncedSearch, waitingFilter, 1);
+  }, [debouncedSearch]);
 
   const handleFilterChange = (value: string) => {
     setWaitingFilter(value);
-    fetchPets(search, value, 1);
+    fetchPets(debouncedSearch, value, 1);
   };
 
   const handleLoadMore = async () => {
@@ -57,7 +67,7 @@ export function PetList({ initialData }: PetListProps) {
     try {
       const nextPage = page + 1;
       const result = await getPets({
-        search: search || undefined,
+        search: debouncedSearch || undefined,
         waitingFilter: waitingFilter || undefined,
         page: nextPage,
         limit: PAGE_SIZE,
@@ -77,7 +87,7 @@ export function PetList({ initialData }: PetListProps) {
       <div className="mb-6">
         <PetFilters
           search={search}
-          onSearchChange={handleSearchChange}
+          onSearchChange={setSearch}
           waitingFilter={waitingFilter}
           onWaitingFilterChange={handleFilterChange}
         />
@@ -85,7 +95,13 @@ export function PetList({ initialData }: PetListProps) {
 
       {/* Grid de cards */}
       {loading ? (
-        <div className="text-center py-16 text-gray-400">Carregando...</div>
+        <div className="columns-2 sm:columns-3 lg:columns-4 gap-3 space-y-3">
+          {Array.from({ length: PAGE_SIZE }).map((_, i) => (
+            <div key={i} className="break-inside-avoid">
+              <PetCardSkeleton />
+            </div>
+          ))}
+        </div>
       ) : pets.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
           Nenhum pet encontrado.
