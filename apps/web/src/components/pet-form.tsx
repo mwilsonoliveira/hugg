@@ -48,7 +48,7 @@ export function PetForm({
 
   const selectedSpecies = useWatch({ control, name: "species" }) as Species | "";
   const [mixedBreed, setMixedBreed] = useState(
-    () => !defaultValues?.breed && !!defaultValues?.species,
+    () => defaultValues?.breed === "SRD",
   );
 
   // Limpa a raça quando a espécie muda, mas não no mount inicial (edição)
@@ -64,7 +64,7 @@ export function PetForm({
 
   const handleMixedBreedChange = (checked: boolean) => {
     setMixedBreed(checked);
-    if (checked) setValue("breed", undefined, { shouldDirty: true, shouldValidate: true });
+    setValue("breed", checked ? "SRD" : undefined, { shouldDirty: true, shouldValidate: true });
   };
 
   const toDateInputValue = (val: Date | string | undefined) => {

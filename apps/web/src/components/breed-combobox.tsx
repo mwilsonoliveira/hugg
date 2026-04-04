@@ -28,6 +28,7 @@ export function BreedCombobox({ species, value, onChange, error, forceDisabled =
   }, [breeds, query]);
 
   const disabled = forceDisabled || !species || species === "OTHER" || breeds.length === 0;
+  const displayValue = forceDisabled ? "" : value;
 
   const handleSelect = (breed: string) => {
     onChange(breed === value ? "" : breed);
@@ -55,13 +56,13 @@ export function BreedCombobox({ species, value, onChange, error, forceDisabled =
                 : "border-gray-200 text-gray-700 hover:border-gray-300 cursor-pointer"
             } ${error ? "border-red-400" : ""}`}
           >
-            <span className={value && !forceDisabled ? "text-gray-900" : "text-gray-400"}>
+            <span className={displayValue ? "text-gray-900" : "text-gray-400"}>
               {forceDisabled
                 ? "Sem raça definida"
-                : value || (disabled ? "Selecione uma espécie primeiro" : "Selecione a raça")}
+                : displayValue || (disabled ? "Selecione uma espécie primeiro" : "Selecione a raça")}
             </span>
             <div className="flex items-center gap-1">
-              {value && !disabled && (
+              {displayValue && !disabled && (
                 <span
                   onClick={handleClear}
                   className="text-gray-400 hover:text-gray-600 px-0.5 cursor-pointer"
@@ -105,7 +106,7 @@ export function BreedCombobox({ species, value, onChange, error, forceDisabled =
                     className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-orange-50 hover:text-orange-700 transition-colors text-left"
                   >
                     {breed}
-                    {value === breed && <Check className="w-3.5 h-3.5 text-orange-500 shrink-0" />}
+                    {displayValue === breed && <Check className="w-3.5 h-3.5 text-orange-500 shrink-0" />}
                   </button>
                 ))
               )}

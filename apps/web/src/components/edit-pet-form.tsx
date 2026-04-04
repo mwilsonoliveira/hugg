@@ -15,7 +15,7 @@ export function EditPetForm({ pet }: EditPetFormProps) {
 
   const onSubmit = async (data: CreatePetInput) => {
     try {
-      await updatePetAction(pet.id, { ...data, breed: data.breed || null });
+      await updatePetAction(pet.id, { ...data, breed: data.breed ?? null });
       toast.success("Pet atualizado com sucesso!");
       router.push(`/pets/${pet.id}`);
     } catch {
@@ -41,6 +41,7 @@ export function EditPetForm({ pet }: EditPetFormProps) {
       </div>
 
       <PetForm
+        key={pet.id}
         defaultValues={{
           name: pet.name,
           species: pet.species,

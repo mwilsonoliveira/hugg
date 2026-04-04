@@ -50,7 +50,7 @@ export default async function PetDetailPage({ params }: Props) {
 
   const INFO_ROWS = [
     { label: "Espécie", value: speciesLabel(pet.species) },
-    { label: "Raça", value: pet.breed ?? "Não informada" },
+    { label: "Raça", value: pet.breed === "SRD" ? "Sem raça definida" : pet.breed ?? "Não informada" },
     { label: "Idade", value: pet.age != null ? `${pet.age} ${pet.age === 1 ? "ano" : "anos"}` : "Não informada" },
     { label: "Situação", value: situationLabel(pet.situation) },
     { label: "Aguardando há", value: duration },

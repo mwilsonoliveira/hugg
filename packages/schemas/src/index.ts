@@ -34,7 +34,6 @@ export const BREEDS_BY_SPECIES = {
     "Shar-Pei",
     "Shih Tzu",
     "Spitz Alemão",
-    "Vira-lata",
     "Weimaraner",
     "Yorkshire Terrier",
   ],
@@ -98,7 +97,9 @@ export const situationSchema = z.enum(["SHELTER", "ABANDONED", "FOSTER", "STREET
 });
 export const adoptionStatusSchema = z.enum(["PENDING", "APPROVED", "REJECTED"]);
 
-export const createPetSchema = z.object({
+const SPECIES_WITH_BREEDS = ["DOG", "CAT", "BIRD", "RABBIT"] as const;
+
+const petBaseSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
   species: speciesSchema,
   situation: situationSchema,
@@ -119,7 +120,18 @@ export const createPetSchema = z.object({
   longitude: z.number().optional(),
 });
 
-export const updatePetSchema = createPetSchema.extend({
+export const createPetSchema = petBaseSchema.superRefine((data, ctx) => {
+  const needsBreed = (SPECIES_WITH_BREEDS as readonly string[]).includes(data.species);
+  if (needsBreed && !data.breed) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Selecione a raça ou marque Sem raça definida",
+      path: ["breed"],
+    });
+  }
+});
+
+export const updatePetSchema = petBaseSchema.extend({
   breed: z.string().nullable().optional(),
 }).partial();
 
