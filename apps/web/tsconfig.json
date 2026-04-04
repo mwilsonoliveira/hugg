@@ -14,7 +14,8 @@
     "allowJs": true,
     "noEmit": true,
     "incremental": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
   "include": [
     "next-env.d.ts",

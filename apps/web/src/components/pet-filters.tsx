@@ -44,7 +44,7 @@ export function PetFilters({
           type="text"
           placeholder="Buscar por nome ou raça..."
           value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearchChange(e.target.value)}
           className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
         />
       </div>
