@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getPetById } from "@/lib/api";
 import { PetPhotoCarousel } from "@/components/pet-photo-carousel";
-import { speciesLabel, situationLabel, waitingDays } from "@hugg/utils";
+import { speciesLabel, situationLabel, waitingDuration } from "@hugg/utils";
 
 interface Props {
   params: { id: string };
@@ -16,17 +16,14 @@ export default async function PetDetailPage({ params }: Props) {
     notFound();
   }
 
-  const days = waitingDays(pet.waitingSince);
+  const duration = waitingDuration(pet.waitingSince);
 
   const INFO_ROWS = [
     { label: "Espécie", value: speciesLabel(pet.species) },
     { label: "Raça", value: pet.breed ?? "Não informada" },
     { label: "Idade", value: pet.age != null ? `${pet.age} ${pet.age === 1 ? "ano" : "anos"}` : "Não informada" },
     { label: "Situação", value: situationLabel(pet.situation) },
-    {
-      label: "Aguardando há",
-      value: days === 0 ? "Hoje" : days === 1 ? "1 dia" : `${days} dias`,
-    },
+    { label: "Aguardando há", value: duration },
     {
       label: "Desde",
       value: new Date(pet.waitingSince).toLocaleDateString("pt-BR"),
@@ -69,7 +66,7 @@ export default async function PetDetailPage({ params }: Props) {
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">{pet.name}</h1>
           <p className="text-sm text-gray-500 mt-1">
-            {situationLabel(pet.situation)} · {days === 0 ? "desde hoje" : `há ${days} ${days === 1 ? "dia" : "dias"}`}
+            {situationLabel(pet.situation)} · há {duration}
           </p>
         </div>
 
