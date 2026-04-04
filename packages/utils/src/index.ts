@@ -48,22 +48,25 @@ export function waitingDays(since: Date): number {
   return Math.floor(ms / (1000 * 60 * 60 * 24));
 }
 
-export function waitingLabel(since: Date, situation: string): string {
+export function waitingDuration(since: Date): string {
   const days = waitingDays(since);
-  const sit = situationLabel(situation);
-  if (days === 0) return `${sit} · hoje`;
-  if (days === 1) return `${sit} · 1 dia`;
-  if (days < 7) return `${sit} · ${days} dias`;
+  if (days === 0) return "hoje";
+  if (days === 1) return "1 dia";
+  if (days < 7) return `${days} dias`;
   if (days < 30) {
     const weeks = Math.floor(days / 7);
-    return `${sit} · ${weeks} ${weeks === 1 ? "semana" : "semanas"}`;
+    return `${weeks} ${weeks === 1 ? "semana" : "semanas"}`;
   }
   if (days < 365) {
     const months = Math.floor(days / 30);
-    return `${sit} · ${months} ${months === 1 ? "mês" : "meses"}`;
+    return `${months} ${months === 1 ? "mês" : "meses"}`;
   }
   const years = Math.floor(days / 365);
   const remainingMonths = Math.floor((days % 365) / 30);
-  if (remainingMonths === 0) return `${sit} · ${years} ${years === 1 ? "ano" : "anos"}`;
-  return `${sit} · ${years} ${years === 1 ? "ano" : "anos"} e ${remainingMonths} ${remainingMonths === 1 ? "mês" : "meses"}`;
+  if (remainingMonths === 0) return `${years} ${years === 1 ? "ano" : "anos"}`;
+  return `${years} ${years === 1 ? "ano" : "anos"} e ${remainingMonths} ${remainingMonths === 1 ? "mês" : "meses"}`;
+}
+
+export function waitingLabel(since: Date, situation: string): string {
+  return `${situationLabel(situation)} · ${waitingDuration(since)}`;
 }
