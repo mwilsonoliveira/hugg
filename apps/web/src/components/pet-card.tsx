@@ -15,8 +15,13 @@ export function PetCard({ pet }: PetCardProps) {
 
   const hasMultiple = pet.imageUrls.length > 1;
 
+  const stopProp = (e: React.MouseEvent) => e.preventDefault();
+
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col">
+    <Link
+      href={`/pets/${pet.id}`}
+      className="block bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-shadow"
+    >
       {/* Fotos */}
       <div className="relative">
         <div className="overflow-hidden">
@@ -44,7 +49,7 @@ export function PetCard({ pet }: PetCardProps) {
 
         {/* Dots de navegação */}
         {hasMultiple && (
-          <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1">
+          <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1" onClick={stopProp}>
             {pet.imageUrls.map((_, i) => (
               <button
                 key={i}
@@ -59,7 +64,7 @@ export function PetCard({ pet }: PetCardProps) {
 
         {/* Botão de like */}
         <button
-          onClick={() => setLiked((v) => !v)}
+          onClick={(e) => { stopProp(e); setLiked((v) => !v); }}
           className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm transition-transform active:scale-90"
           aria-label={liked ? "Remover dos favoritos" : "Favoritar"}
         >
@@ -79,10 +84,10 @@ export function PetCard({ pet }: PetCardProps) {
           </svg>
         </button>
 
-        {/* Setas laterais */}
+        {/* Seta esquerda */}
         {hasMultiple && photoIndex > 0 && (
           <button
-            onClick={() => setPhotoIndex((i) => i - 1)}
+            onClick={(e) => { stopProp(e); setPhotoIndex((i) => i - 1); }}
             className="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white/80 flex items-center justify-center shadow-sm"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-gray-700">
@@ -90,9 +95,11 @@ export function PetCard({ pet }: PetCardProps) {
             </svg>
           </button>
         )}
+
+        {/* Seta direita */}
         {hasMultiple && photoIndex < pet.imageUrls.length - 1 && (
           <button
-            onClick={() => setPhotoIndex((i) => i + 1)}
+            onClick={(e) => { stopProp(e); setPhotoIndex((i) => i + 1); }}
             className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white/80 flex items-center justify-center shadow-sm"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-gray-700">
@@ -103,13 +110,13 @@ export function PetCard({ pet }: PetCardProps) {
       </div>
 
       {/* Informações */}
-      <Link href={`/pets/${pet.id}`} className="p-3 flex flex-col gap-1 hover:bg-gray-50 transition-colors">
+      <div className="p-3 flex flex-col gap-1">
         <div className="flex items-center justify-between">
           <span className="font-semibold text-gray-900">{pet.name}</span>
           <span className="text-xs text-gray-400">{speciesLabel(pet.species)}</span>
         </div>
         <span className="text-xs text-gray-500">{waitingLabel(pet.waitingSince, pet.situation)}</span>
-      </Link>
-    </div>
+      </div>
+    </Link>
   );
 }

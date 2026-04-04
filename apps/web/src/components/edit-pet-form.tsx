@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { type CreatePetInput, type PetResponse } from "@hugg/schemas";
 import { PetForm } from "@/components/pet-form";
-import { updatePet } from "@/lib/api";
+import { updatePetAction } from "@/app/actions/pets";
 
 interface EditPetFormProps {
   pet: PetResponse;
@@ -15,9 +15,8 @@ export function EditPetForm({ pet }: EditPetFormProps) {
 
   const onSubmit = async (data: CreatePetInput) => {
     try {
-      await updatePet(pet.id, data);
+      await updatePetAction(pet.id, data);
       toast.success("Pet atualizado com sucesso!");
-      router.refresh();
       router.push(`/pets/${pet.id}`);
     } catch {
       toast.error("Erro ao salvar alterações. Tente novamente.");
