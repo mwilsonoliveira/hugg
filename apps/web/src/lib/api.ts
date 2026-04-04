@@ -1,4 +1,4 @@
-import type { PaginatedPets, CreatePetInput, PetResponse } from "@hugg/schemas";
+import type { PaginatedPets, CreatePetInput, UpdatePetInput, PetResponse } from "@hugg/schemas";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -31,6 +31,20 @@ export async function getPetById(id: string): Promise<PetResponse> {
 
   if (!res.ok) {
     throw new Error(`Erro ao buscar pet: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+export async function updatePet(id: string, data: UpdatePetInput): Promise<PetResponse> {
+  const res = await fetch(`${API_URL}/api/pets/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Erro ao atualizar pet: ${res.status}`);
   }
 
   return res.json();

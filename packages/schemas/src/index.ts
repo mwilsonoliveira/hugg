@@ -18,6 +18,8 @@ export const createPetSchema = z.object({
   longitude: z.number().optional(),
 });
 
+export const updatePetSchema = createPetSchema.partial();
+
 export const listPetsQuerySchema = z.object({
   search: z.string().optional(),
   waitingFilter: z.enum(["7", "30", "90", "90+"]).optional(),
@@ -68,6 +70,7 @@ export const loginSchema = z.object({
 });
 
 export type CreatePetInput = z.infer<typeof createPetSchema>;
+export type UpdatePetInput = z.infer<typeof updatePetSchema>;
 export type ListPetsQuery = z.infer<typeof listPetsQuerySchema>;
 export type PetResponse = z.infer<typeof petResponseSchema>;
 export type PaginatedPets = z.infer<typeof paginatedPetsSchema>;

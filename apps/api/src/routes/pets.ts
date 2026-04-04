@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { prisma } from "../lib/prisma";
-import { listPetsQuerySchema, createPetSchema } from "@hugg/schemas";
+import { listPetsQuerySchema, createPetSchema, updatePetSchema } from "@hugg/schemas";
 
 export async function petsRoutes(app: FastifyInstance) {
   app.get("/pets", async (request, reply) => {
@@ -90,5 +90,26 @@ export async function petsRoutes(app: FastifyInstance) {
     });
 
     return reply.status(201).send(pet);
+  });
+
+  app.patch("/pets/:id", async (request, reply) => {
+    const { id } = request.params as { id: string };
+
+    const body = updatePetSchema.safeParse(request.body);
+    if (!body.success) {
+      return reply.status(400).send({ error: body.error.flatten() });
+    }
+
+    const existing = await prisma.pet.findUnique({ where: { id } });
+    if (!existing) {
+      return reply.status(404).send({ error: "Pet não encontrado" });
+    }
+
+    const pet = await prisma.pet.update({
+      where: { id },
+      data: body.data,
+    });
+
+    return reply.send(pet);
   });
 }
