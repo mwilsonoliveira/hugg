@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import type { PetResponse } from "@hugg/schemas";
 import { waitingLabel, speciesLabel } from "@hugg/utils";
+import { ShareButton } from "@/components/share-button";
 
 interface PetCardProps {
   pet: PetResponse;
@@ -20,7 +21,7 @@ export function PetCard({ pet }: PetCardProps) {
   return (
     <Link
       href={`/pets/${pet.id}`}
-      className="block bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-shadow"
+      className="flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
     >
       {/* Fotos */}
       <div className="relative">
@@ -61,6 +62,11 @@ export function PetCard({ pet }: PetCardProps) {
             ))}
           </div>
         )}
+
+        {/* Botão de compartilhar */}
+        <div className="absolute top-2 left-2" onClick={stopProp}>
+          <ShareButton petId={pet.id} petName={pet.name} situation={pet.situation} size="sm" />
+        </div>
 
         {/* Botão de like */}
         <button
