@@ -32,3 +32,25 @@ export function speciesLabel(species: string): string {
   };
   return labels[species] ?? species;
 }
+
+export function situationLabel(situation: string): string {
+  const labels: Record<string, string> = {
+    SHELTER: "Em abrigo",
+    ABANDONED: "Abandonado",
+    FOSTER: "Em lar temporário",
+  };
+  return labels[situation] ?? situation;
+}
+
+export function waitingDays(since: Date): number {
+  const ms = Date.now() - new Date(since).getTime();
+  return Math.floor(ms / (1000 * 60 * 60 * 24));
+}
+
+export function waitingLabel(since: Date, situation: string): string {
+  const days = waitingDays(since);
+  const sit = situationLabel(situation);
+  if (days === 0) return `${sit} · hoje`;
+  if (days === 1) return `${sit} · 1 dia`;
+  return `${sit} · ${days} dias`;
+}
