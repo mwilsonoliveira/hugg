@@ -57,6 +57,7 @@ enum Situation {
   SHELTER
   ABANDONED
   FOSTER
+  STREET
 }
 
 enum Species {

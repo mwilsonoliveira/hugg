@@ -38,6 +38,7 @@ export function situationLabel(situation: string): string {
     SHELTER: "Em abrigo",
     ABANDONED: "Abandonado",
     FOSTER: "Em lar temporário",
+    STREET: "Na rua",
   };
   return labels[situation] ?? situation;
 }

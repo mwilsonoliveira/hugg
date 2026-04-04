@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 interface PetFiltersProps {
   search: string;
   onSearchChange: (value: string) => void;
@@ -24,9 +26,12 @@ export function PetFilters({
   return (
     <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
       {/* Botão Achei um pet */}
-      <button className="shrink-0 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+      <Link
+        href="/pets/new"
+        className="shrink-0 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors text-center"
+      >
         Achei um pet!
-      </button>
+      </Link>
 
       {/* Campo de busca */}
       <div className="relative flex-1">

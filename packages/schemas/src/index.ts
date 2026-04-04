@@ -2,18 +2,18 @@ import { z } from "zod";
 
 export const speciesSchema = z.enum(["DOG", "CAT", "BIRD", "RABBIT", "OTHER"]);
 export const petStatusSchema = z.enum(["AVAILABLE", "UNDER_REVIEW", "ADOPTED"]);
-export const situationSchema = z.enum(["SHELTER", "ABANDONED", "FOSTER"]);
+export const situationSchema = z.enum(["SHELTER", "ABANDONED", "FOSTER", "STREET"]);
 export const adoptionStatusSchema = z.enum(["PENDING", "APPROVED", "REJECTED"]);
 
 export const createPetSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
   species: speciesSchema,
+  situation: situationSchema,
   breed: z.string().optional(),
-  age: z.number().int().positive().optional(),
-  description: z.string().optional(),
-  imageUrls: z.array(z.string().url()).default([]),
-  situation: situationSchema.default("SHELTER"),
-  waitingSince: z.coerce.date().optional(),
+  age: z.coerce.number().int().min(0, "Idade inválida").optional(),
+  description: z.string().min(1, "Descrição é obrigatória"),
+  imageUrls: z.array(z.string()).min(1, "Adicione pelo menos uma foto"),
+  waitingSince: z.coerce.date({ required_error: "Data é obrigatória" }),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
 });

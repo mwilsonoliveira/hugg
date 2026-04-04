@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { prisma } from "../lib/prisma";
-import { listPetsQuerySchema } from "@hugg/schemas";
+import { listPetsQuerySchema, createPetSchema } from "@hugg/schemas";
 
 export async function petsRoutes(app: FastifyInstance) {
   app.get("/pets", async (request, reply) => {
@@ -55,5 +55,28 @@ export async function petsRoutes(app: FastifyInstance) {
     ]);
 
     return reply.send({ data, total, page, limit });
+  });
+
+  app.post("/pets", async (request, reply) => {
+    const body = createPetSchema.safeParse(request.body);
+
+    if (!body.success) {
+      return reply.status(400).send({ error: body.error.flatten() });
+    }
+
+    // Busca o primeiro usuário disponível (temporário, sem autenticação)
+    const user = await prisma.user.findFirst();
+    if (!user) {
+      return reply.status(500).send({ error: "Nenhum usuário encontrado" });
+    }
+
+    const pet = await prisma.pet.create({
+      data: {
+        ...body.data,
+        createdById: user.id,
+      },
+    });
+
+    return reply.status(201).send(pet);
   });
 }
