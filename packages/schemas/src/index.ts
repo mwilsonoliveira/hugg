@@ -115,10 +115,13 @@ const petBaseSchema = z.object({
     .or(z.literal(NaN).transform(() => undefined)),
   description: z.string().min(1, "Descrição é obrigatória"),
   imageUrls: z.array(z.string()).min(1, "Adicione pelo menos uma foto"),
-  waitingSince: z.coerce.date({
-    required_error: "Informe uma data",
-    invalid_type_error: "Informe uma data",
-  }),
+  waitingSince: z.coerce
+    .date({
+      required_error: "Informe uma data",
+      invalid_type_error: "Informe uma data",
+    })
+    .refine((d) => !isNaN(d.getTime()), { message: "Informe uma data" })
+    .refine((d) => d <= new Date(), { message: "A data não pode ser no futuro" }),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
 });

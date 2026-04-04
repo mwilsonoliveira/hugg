@@ -60,7 +60,7 @@ export function PetForm({
   useEffect(() => {
     if (selectedSpecies === prevSpeciesRef.current) return;
     prevSpeciesRef.current = selectedSpecies;
-    setValue("breed", undefined);
+    setValue("breed", undefined, { shouldDirty: true, shouldValidate: true });
   }, [selectedSpecies, setValue]);
 
   const handleMixedBreedChange = (checked: boolean) => {
@@ -208,15 +208,22 @@ export function PetForm({
           <label className="text-sm font-medium text-gray-700">
             Aguardando desde <span className="text-red-500">*</span>
           </label>
-          <input
-            {...register("waitingSince")}
-            type="date"
-            defaultValue={toDateInputValue(defaultValues?.waitingSince)}
-            max={new Date().toISOString().split("T")[0]}
-            className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+          <Controller
+            name="waitingSince"
+            control={control}
+            render={({ field }) => (
+              <input
+                type="date"
+                value={field.value ? toDateInputValue(field.value) : ""}
+                onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value + "T00:00:00") : null)}
+                onBlur={field.onBlur}
+                max={new Date().toISOString().split("T")[0]}
+                className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+              />
+            )}
           />
           {errors.waitingSince && (
-            <p className="text-xs text-red-500">Data inválida</p>
+            <p className="text-xs text-red-500">Informe uma data</p>
           )}
         </div>
 
