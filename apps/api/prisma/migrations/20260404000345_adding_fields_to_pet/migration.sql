@@ -1,0 +1,6 @@
+-- CreateEnum
+CREATE TYPE "Situation" AS ENUM ('SHELTER', 'ABANDONED', 'FOSTER');
+
+-- AlterTable
+ALTER TABLE "Pet" ADD COLUMN     "situation" "Situation" NOT NULL DEFAULT 'SHELTER',
+ADD COLUMN     "waitingSince" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
