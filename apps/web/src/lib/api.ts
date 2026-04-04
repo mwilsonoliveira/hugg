@@ -26,6 +26,16 @@ export async function getPets(params: GetPetsParams = {}): Promise<PaginatedPets
   return res.json();
 }
 
+export async function getPetById(id: string): Promise<PetResponse> {
+  const res = await fetch(`${API_URL}/api/pets/${id}`, { cache: "no-store" });
+
+  if (!res.ok) {
+    throw new Error(`Erro ao buscar pet: ${res.status}`);
+  }
+
+  return res.json();
+}
+
 export async function createPet(data: CreatePetInput): Promise<PetResponse> {
   const res = await fetch(`${API_URL}/api/pets`, {
     method: "POST",

@@ -57,6 +57,18 @@ export async function petsRoutes(app: FastifyInstance) {
     return reply.send({ data, total, page, limit });
   });
 
+  app.get("/pets/:id", async (request, reply) => {
+    const { id } = request.params as { id: string };
+
+    const pet = await prisma.pet.findUnique({ where: { id } });
+
+    if (!pet) {
+      return reply.status(404).send({ error: "Pet não encontrado" });
+    }
+
+    return reply.send(pet);
+  });
+
   app.post("/pets", async (request, reply) => {
     const body = createPetSchema.safeParse(request.body);
 

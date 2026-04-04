@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { PetResponse } from "@hugg/schemas";
 import { waitingLabel, speciesLabel } from "@hugg/utils";
 
@@ -102,13 +103,13 @@ export function PetCard({ pet }: PetCardProps) {
       </div>
 
       {/* Informações */}
-      <div className="p-3 flex flex-col gap-1">
+      <Link href={`/pets/${pet.id}`} className="p-3 flex flex-col gap-1 hover:bg-gray-50 transition-colors">
         <div className="flex items-center justify-between">
           <span className="font-semibold text-gray-900">{pet.name}</span>
           <span className="text-xs text-gray-400">{speciesLabel(pet.species)}</span>
         </div>
         <span className="text-xs text-gray-500">{waitingLabel(pet.waitingSince, pet.situation)}</span>
-      </div>
+      </Link>
     </div>
   );
 }
