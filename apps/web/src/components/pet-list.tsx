@@ -8,7 +8,7 @@ import { PetFilters } from "@/components/pet-filters";
 import { getPets } from "@/lib/api";
 import { useDebounce } from "@/hooks/use-debounce";
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 12;
 
 interface PetListProps {
   initialData: PaginatedPets;
@@ -20,7 +20,7 @@ export function PetList({ initialData }: PetListProps) {
   const [search, setSearch] = useState("");
   const [waitingFilter, setWaitingFilter] = useState("");
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
 
   const debouncedSearch = useDebounce(search, 500);
@@ -95,7 +95,7 @@ export function PetList({ initialData }: PetListProps) {
 
       {/* Grid de cards */}
       {loading ? (
-        <div className="columns-2 sm:columns-3 lg:columns-4 gap-3 space-y-3">
+        <div className="w-full columns-1 sm:columns-2 md:columns-3 xl:columns-4 gap-3 space-y-3">
           {Array.from({ length: PAGE_SIZE }).map((_, i) => (
             <div key={i} className="break-inside-avoid">
               <PetCardSkeleton />
@@ -107,7 +107,7 @@ export function PetList({ initialData }: PetListProps) {
           Nenhum pet encontrado.
         </div>
       ) : (
-        <div className="columns-2 sm:columns-3 lg:columns-4 gap-3 space-y-3">
+        <div className="w-full columns-1 sm:columns-2 md:columns-3 xl:columns-4 gap-3 space-y-3">
           {pets.map((pet) => (
             <div key={pet.id} className="break-inside-avoid">
               <PetCard pet={pet} />
