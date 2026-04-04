@@ -1,8 +1,101 @@
 import { z } from "zod";
 
-export const speciesSchema = z.enum(["DOG", "CAT", "BIRD", "RABBIT", "OTHER"]);
+export const BREEDS_BY_SPECIES = {
+  DOG: [
+    "Akita",
+    "American Bully",
+    "Basenji",
+    "Beagle",
+    "Bichon Frisé",
+    "Border Collie",
+    "Boxer",
+    "Bull Terrier",
+    "Bulldog Inglês",
+    "Chihuahua",
+    "Chow Chow",
+    "Cocker Spaniel",
+    "Dachshund",
+    "Dálmata",
+    "Dobermann",
+    "Fila Brasileiro",
+    "Golden Retriever",
+    "Husky Siberiano",
+    "Labrador Retriever",
+    "Lhasa Apso",
+    "Maltês",
+    "Pastor Alemão",
+    "Pastor Australiano",
+    "Pinscher Miniatura",
+    "Pit Bull Terrier",
+    "Poodle",
+    "Pug",
+    "Rottweiler",
+    "Schnauzer",
+    "Shar-Pei",
+    "Shih Tzu",
+    "Spitz Alemão",
+    "Vira-lata",
+    "Weimaraner",
+    "Yorkshire Terrier",
+  ],
+  CAT: [
+    "Abissínio",
+    "Angorá Turco",
+    "Azul Russo",
+    "Bengal",
+    "Birmanês",
+    "Bombay",
+    "British Shorthair",
+    "Devon Rex",
+    "Esfinge (Sphynx)",
+    "Maine Coon",
+    "Norueguês da Floresta",
+    "Persa",
+    "Ragdoll",
+    "Scottish Fold",
+    "Siamês",
+    "SRD (Sem Raça Definida)",
+  ],
+  BIRD: [
+    "Agapornis (Pássaro do Amor)",
+    "Arara Azul",
+    "Arara Vermelha",
+    "Cacatua",
+    "Calopsita",
+    "Canário",
+    "Coleirinho",
+    "Curiós",
+    "Manon",
+    "Papagaio Verdadeiro",
+    "Periquito Australiano",
+    "Pintassilgo",
+    "Rosella",
+    "Trinca-ferro",
+  ],
+  RABBIT: [
+    "Angorá",
+    "Dutch (Holandês)",
+    "Fuzzy Lop",
+    "Gigante de Flandres",
+    "Holland Lop",
+    "Leão (Lionhead)",
+    "Mini Lop",
+    "Mini Rex",
+    "Nova Zelândia",
+    "Rex",
+  ],
+  OTHER: [],
+} as const;
+
+export type Species = keyof typeof BREEDS_BY_SPECIES;
+
+export const speciesSchema = z.enum(["DOG", "CAT", "BIRD", "RABBIT", "OTHER"], {
+  errorMap: () => ({ message: "Espécie é obrigatória" }),
+});
 export const petStatusSchema = z.enum(["AVAILABLE", "UNDER_REVIEW", "ADOPTED"]);
-export const situationSchema = z.enum(["SHELTER", "ABANDONED", "FOSTER", "STREET"]);
+export const situationSchema = z.enum(["SHELTER", "ABANDONED", "FOSTER", "STREET"], {
+  errorMap: () => ({ message: "Situação é obrigatória" }),
+});
 export const adoptionStatusSchema = z.enum(["PENDING", "APPROVED", "REJECTED"]);
 
 export const createPetSchema = z.object({
@@ -10,15 +103,25 @@ export const createPetSchema = z.object({
   species: speciesSchema,
   situation: situationSchema,
   breed: z.string().optional(),
-  age: z.coerce.number().int().min(0, "Idade inválida").optional(),
+  age: z.coerce
+    .number({ invalid_type_error: "Informe um número válido" })
+    .int("Informe um número inteiro")
+    .min(0, "Idade inválida")
+    .optional()
+    .or(z.literal(NaN).transform(() => undefined)),
   description: z.string().min(1, "Descrição é obrigatória"),
   imageUrls: z.array(z.string()).min(1, "Adicione pelo menos uma foto"),
-  waitingSince: z.coerce.date({ required_error: "Data é obrigatória" }),
+  waitingSince: z.coerce.date({
+    required_error: "Data é obrigatória",
+    invalid_type_error: "Data inválida",
+  }),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
 });
 
-export const updatePetSchema = createPetSchema.partial();
+export const updatePetSchema = createPetSchema.extend({
+  breed: z.string().nullable().optional(),
+}).partial();
 
 export const listPetsQuerySchema = z.object({
   search: z.string().optional(),

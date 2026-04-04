@@ -1,9 +1,11 @@
 "use client";
 
-import { useForm, Controller } from "react-hook-form";
+import { useEffect, useRef, useState } from "react";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createPetSchema, type CreatePetInput } from "@hugg/schemas";
+import { createPetSchema, type CreatePetInput, type Species } from "@hugg/schemas";
 import { ImageDropzone } from "@/components/image-dropzone";
+import { BreedCombobox } from "@/components/breed-combobox";
 
 const SPECIES_OPTIONS = [
   { value: "DOG", label: "Cachorro" },
@@ -37,11 +39,33 @@ export function PetForm({
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<CreatePetInput>({
     resolver: zodResolver(createPetSchema),
     defaultValues,
   });
+
+  const selectedSpecies = useWatch({ control, name: "species" }) as Species | "";
+  const [mixedBreed, setMixedBreed] = useState(
+    () => !defaultValues?.breed && !!defaultValues?.species,
+  );
+
+  // Limpa a raça quando a espécie muda, mas não no mount inicial (edição)
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    setValue("breed", undefined);
+    setMixedBreed(false);
+  }, [selectedSpecies, setValue]);
+
+  const handleMixedBreedChange = (checked: boolean) => {
+    setMixedBreed(checked);
+    if (checked) setValue("breed", undefined, { shouldDirty: true, shouldValidate: true });
+  };
 
   const toDateInputValue = (val: Date | string | undefined) => {
     if (!val) return "";
@@ -105,12 +129,28 @@ export function PetForm({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">Raça</label>
-            <input
-              {...register("breed")}
-              placeholder="Ex: Vira-lata"
-              className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+            <Controller
+              name="breed"
+              control={control}
+              render={({ field }) => (
+                <BreedCombobox
+                  species={selectedSpecies}
+                  value={field.value ?? ""}
+                  onChange={field.onChange}
+                  error={errors.breed?.message}
+                  forceDisabled={mixedBreed}
+                />
+              )}
             />
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={mixedBreed}
+                onChange={(e) => handleMixedBreedChange(e.target.checked)}
+                className="w-3.5 h-3.5 rounded border-gray-300 accent-orange-500"
+              />
+              <span className="text-xs text-gray-500">Sem raça definida</span>
+            </label>
           </div>
         </div>
 
