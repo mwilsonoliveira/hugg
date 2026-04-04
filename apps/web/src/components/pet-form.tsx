@@ -55,12 +55,13 @@ export function PetForm({
   const selectedBreed = useWatch({ control, name: "breed" }) as string | undefined;
   const mixedBreed = selectedBreed === SRD_LABEL;
 
-  // Limpa a raça quando a espécie muda, mas não no mount inicial (edição)
-  const isFirstRender = useRef(true);
+  // Limpa a raça apenas quando a espécie realmente muda (não no mount inicial)
+  const prevSpeciesRef = useRef<string | undefined>(defaultValues?.species);
   useEffect(() => {
-    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    if (selectedSpecies === prevSpeciesRef.current) return;
+    prevSpeciesRef.current = selectedSpecies;
     setValue("breed", undefined);
-  }, [selectedSpecies]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [selectedSpecies, setValue]);
 
   const handleMixedBreedChange = (checked: boolean) => {
     setValue("breed", checked ? SRD_LABEL : undefined, {

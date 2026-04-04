@@ -8,7 +8,7 @@ import { BREEDS_BY_SPECIES, type Species } from "@hugg/schemas";
 interface BreedComboboxProps {
   species: Species | "";
   value: string;
-  onChange: (value: string) => void;
+  onChange: (value: string | undefined) => void;
   error?: string;
 }
 
@@ -30,14 +30,14 @@ export function BreedCombobox({ species, value, onChange, error }: BreedCombobox
   const displayValue = value;
 
   const handleSelect = (breed: string) => {
-    onChange(breed === value ? "" : breed);
+    onChange(breed === value ? undefined : breed);
     setQuery("");
     setOpen(false);
   };
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onChange("");
+    onChange(undefined);
     setQuery("");
   };
 
