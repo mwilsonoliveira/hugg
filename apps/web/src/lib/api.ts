@@ -50,6 +50,22 @@ export async function updatePet(id: string, data: UpdatePetInput): Promise<PetRe
   return res.json();
 }
 
+export async function getSearchHistory(): Promise<{ query: string; count: number }[]> {
+  const res = await fetch(`${API_URL}/api/searches`, { cache: "no-store" });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.searches;
+}
+
+export async function recordSearch(query: string): Promise<void> {
+  if (!query || query.trim().length < 2) return;
+  await fetch(`${API_URL}/api/searches`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query: query.trim().toLowerCase() }),
+  }).catch(() => {/* fire-and-forget */});
+}
+
 export async function createPet(data: CreatePetInput): Promise<PetResponse> {
   const res = await fetch(`${API_URL}/api/pets`, {
     method: "POST",

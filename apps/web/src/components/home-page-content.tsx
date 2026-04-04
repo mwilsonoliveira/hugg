@@ -6,7 +6,8 @@ import { PetCard } from "@/components/pet-card";
 import { PetCardSkeleton } from "@/components/pet-card-skeleton";
 import { PetFilters } from "@/components/pet-filters";
 import { UserDropdown } from "@/components/user-dropdown";
-import { getPets } from "@/lib/api";
+import { HuggLogo } from "@/components/hugg-logo";
+import { getPets, recordSearch } from "@/lib/api";
 import { useDebounce } from "@/hooks/use-debounce";
 
 const PAGE_SIZE = 12;
@@ -51,6 +52,9 @@ export function HomePageContent({ initialData }: HomePageContentProps) {
 
   useEffect(() => {
     fetchPets(debouncedSearch, waitingFilter, 1);
+    if (debouncedSearch.trim().length >= 2) {
+      recordSearch(debouncedSearch);
+    }
   }, [debouncedSearch]);
 
   const handleFilterChange = (value: string) => {
@@ -84,11 +88,14 @@ export function HomePageContent({ initialData }: HomePageContentProps) {
         <div className="max-w-7xl mx-auto px-4">
           {/* Branding row */}
           <div className="flex items-center justify-between py-3">
-            <div>
-              <span className="text-xl font-bold text-gray-900">hugg</span>
-              <p className="text-xs text-gray-400 leading-none mt-0.5">
-                Conectando pets desabrigados a novos lares.
-              </p>
+            <div className="flex items-center gap-2">
+              <HuggLogo className="w-10 h-7 text-gray-900" />
+              <div>
+                <span className="text-xl font-bold text-gray-900">hugg</span>
+                <p className="text-xs text-gray-400 leading-none mt-0.5">
+                  Conectando pets desabrigados a novos lares.
+                </p>
+              </div>
             </div>
             <UserDropdown />
           </div>

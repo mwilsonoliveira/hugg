@@ -1,6 +1,9 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { Clock } from "lucide-react";
+import { getSearchHistory } from "@/lib/api";
 
 interface PetFiltersProps {
   search: string;
@@ -23,6 +26,32 @@ export function PetFilters({
   waitingFilter,
   onWaitingFilterChange,
 }: PetFiltersProps) {
+  const [focused, setFocused] = useState(false);
+  const [history, setHistory] = useState<string[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    getSearchHistory().then((items) => setHistory(items.map((i) => i.query)));
+  }, []);
+
+  // Fecha o dropdown ao clicar fora
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setFocused(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const showHistory = focused && !search && history.length > 0;
+
+  const handleSelect = (query: string) => {
+    onSearchChange(query);
+    setFocused(false);
+  };
+
   return (
     <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
       {/* Botão Achei um pet */}
@@ -33,8 +62,8 @@ export function PetFilters({
         Achei um pet!
       </Link>
 
-      {/* Campo de busca */}
-      <div className="relative flex-1">
+      {/* Campo de busca com histórico */}
+      <div className="relative flex-1" ref={containerRef}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -49,9 +78,29 @@ export function PetFilters({
           type="text"
           placeholder="Buscar por nome ou raça..."
           value={search}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearchChange(e.target.value)}
+          onChange={(e) => onSearchChange(e.target.value)}
+          onFocus={() => setFocused(true)}
           className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
         />
+
+        {/* Dropdown de histórico */}
+        {showHistory && (
+          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-100 rounded-xl shadow-lg z-30 py-1 overflow-hidden">
+            <p className="px-3 py-1.5 text-xs font-medium text-gray-400 uppercase tracking-wide">
+              Pesquisas recentes
+            </p>
+            {history.map((query) => (
+              <button
+                key={query}
+                onMouseDown={(e) => { e.preventDefault(); handleSelect(query); }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-700 transition-colors text-left"
+              >
+                <Clock className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                {query}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Dropdown filtro de espera */}

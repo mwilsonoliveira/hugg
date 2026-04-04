@@ -3,6 +3,7 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import { petsRoutes } from "./routes/pets";
 import { breedsRoutes } from "./routes/breeds";
+import { searchesRoutes } from "./routes/searches";
 
 const app = Fastify({ logger: true });
 
@@ -16,6 +17,7 @@ app.get("/health", async () => {
 
 app.register(petsRoutes, { prefix: "/api" });
 app.register(breedsRoutes, { prefix: "/api" });
+app.register(searchesRoutes, { prefix: "/api" });
 
 const start = async () => {
   try {

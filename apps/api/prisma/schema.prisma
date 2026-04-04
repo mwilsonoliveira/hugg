@@ -40,6 +40,15 @@ model Pet {
   adoptions   Adoption[]
 }
 
+model SearchHistory {
+  id        String   @id @default(cuid())
+  query     String
+  count     Int      @default(1)
+  lastUsed  DateTime @default(now())
+
+  @@unique([query])
+}
+
 model Adoption {
   id        String         @id @default(cuid())
   status    AdoptionStatus @default(PENDING)
