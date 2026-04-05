@@ -1,0 +1,16 @@
+name: Migration for Develop
+
+on:
+  push:
+    paths:
+      - apps/api/prisma/migrations/**
+    branches:
+      - develop
+
+jobs:
+  run-migrations:
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: 'develop'
+    secrets:
+      database_url: ${{ secrets.DATABASE_URL_DEVELOP }}

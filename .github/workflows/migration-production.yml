@@ -1,0 +1,16 @@
+name: Migration for Production
+
+on:
+  push:
+    paths:
+      - apps/api/prisma/migrations/**
+    branches:
+      - main
+
+jobs:
+  run-migrations:
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: 'production'
+    secrets:
+      database_url: ${{ secrets.DATABASE_URL_PRODUCTION }}
