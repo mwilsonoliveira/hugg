@@ -6,6 +6,7 @@ on:
       - apps/api/prisma/migrations/**
     branches:
       - develop
+  workflow_dispatch:
 
 jobs:
   run-migrations:
