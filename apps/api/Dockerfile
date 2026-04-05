@@ -11,6 +11,9 @@ COPY packages/schemas/package.json ./packages/schemas/
 COPY packages/utils/package.json ./packages/utils/
 COPY packages/types/package.json ./packages/types/
 
+# Copia arquivos do Prisma antes do install (necessário para geração do client)
+COPY apps/api/prisma ./apps/api/prisma
+
 # Instala dependências
 RUN pnpm install --frozen-lockfile
 
