@@ -1,0 +1,40 @@
+name: Reusable Migration Workflow
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'The target environment (develop, production, etc.)'
+        required: true
+        type: string
+    secrets:
+      database_url:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Apply migrations
+        working-directory: apps/api
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.database_url }}
+          DIRECT_URL: ${{ secrets.database_url }}

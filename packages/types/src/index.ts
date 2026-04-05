@@ -1,6 +1,6 @@
 export type Species = "DOG" | "CAT" | "BIRD" | "RABBIT" | "OTHER";
 export type PetStatus = "AVAILABLE" | "UNDER_REVIEW" | "ADOPTED";
-export type Situation = "SHELTER" | "ABANDONED" | "FOSTER";
+export type Situation = "SHELTER" | "ABANDONED" | "FOSTER" | "STREET";
 export type AdoptionStatus = "PENDING" | "APPROVED" | "REJECTED";
 
 export interface User {
