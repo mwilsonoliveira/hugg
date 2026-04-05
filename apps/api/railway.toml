@@ -1,5 +1,5 @@
 [build]
-buildCommand = "npm install -g pnpm@9 && pnpm install --frozen-lockfile && pnpm --filter @hugg/api build"
+buildCommand = "pnpm install --frozen-lockfile && pnpm --filter @hugg/api db:generate && pnpm --filter @hugg/api build"
 installCommand = "echo 'skip'"
 
 [deploy]
