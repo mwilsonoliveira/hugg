@@ -116,6 +116,37 @@ async function main() {
     ],
   });
 
+  // Histórico de pesquisas
+  const searchQueries = [
+    "labrador",
+    "golden retriever",
+    "poodle",
+    "gato siamês",
+    "filhote",
+    "cachorro dócil",
+    "gato persa",
+    "beagle",
+    "pastor alemão",
+    "coelho",
+    "pássaro",
+    "calopsita",
+    "border collie",
+    "bulldog",
+    "vira-lata",
+  ];
+
+  for (const query of searchQueries) {
+    await prisma.searchHistory.upsert({
+      where: { query },
+      update: {},
+      create: {
+        query,
+        count: Math.floor(Math.random() * 50) + 1,
+        lastUsed: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+  }
+
   console.log("✅ Seed concluído.");
 }
 

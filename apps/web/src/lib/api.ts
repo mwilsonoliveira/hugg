@@ -1,4 +1,4 @@
-import type { PaginatedPets } from "@hugg/schemas";
+import type { PaginatedPets, CreatePetInput, UpdatePetInput, PetResponse } from "@hugg/schemas";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -21,6 +21,60 @@ export async function getPets(params: GetPetsParams = {}): Promise<PaginatedPets
 
   if (!res.ok) {
     throw new Error(`Erro ao buscar pets: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+export async function getPetById(id: string): Promise<PetResponse> {
+  const res = await fetch(`${API_URL}/api/pets/${id}`, { cache: "no-store" });
+
+  if (!res.ok) {
+    throw new Error(`Erro ao buscar pet: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+export async function updatePet(id: string, data: UpdatePetInput): Promise<PetResponse> {
+  const res = await fetch(`${API_URL}/api/pets/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Erro ao atualizar pet: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+export async function getSearchHistory(): Promise<{ query: string; count: number }[]> {
+  const res = await fetch(`${API_URL}/api/searches`, { cache: "no-store" });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.searches;
+}
+
+export async function recordSearch(query: string): Promise<void> {
+  if (!query || query.trim().length < 2) return;
+  await fetch(`${API_URL}/api/searches`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query: query.trim().toLowerCase() }),
+  }).catch(() => {/* fire-and-forget */});
+}
+
+export async function createPet(data: CreatePetInput): Promise<PetResponse> {
+  const res = await fetch(`${API_URL}/api/pets`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Erro ao criar pet: ${res.status}`);
   }
 
   return res.json();
