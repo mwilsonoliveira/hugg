@@ -15,9 +15,8 @@
     "dev": "tsc --watch"
   },
   "dependencies": {
-    "typescript": "^5.4.0"
-  },
-  "devDependencies": {
+    "typescript": "^5.4.0",
     "@hugg/config": "workspace:*"
-  }
+  },
+  "devDependencies": {}
 }
