@@ -20,10 +20,15 @@ RUN pnpm install --frozen-lockfile
 COPY apps/api ./apps/api
 COPY packages ./packages
 
+# Build dos packages internos
+RUN pnpm --filter @hugg/schemas build
+RUN pnpm --filter @hugg/utils build
+RUN pnpm --filter @hugg/types build
+
 # Gera o Prisma Client
 RUN pnpm --filter @hugg/api db:generate
 
-# Build
+# Build da API
 RUN pnpm --filter @hugg/api build
 
 EXPOSE 3001
