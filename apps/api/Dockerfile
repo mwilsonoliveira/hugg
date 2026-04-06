@@ -29,7 +29,7 @@ RUN pnpm --filter @hugg/types build
 RUN pnpm --filter @hugg/api db:generate
 
 # Build da API
-RUN cd /app/apps/api && npx tsc --noEmit false 2>&1
+RUN pnpm --filter @hugg/api build
 
 EXPOSE 3001
 
