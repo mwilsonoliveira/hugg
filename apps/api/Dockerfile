@@ -7,6 +7,8 @@ WORKDIR /app
 # Copia arquivos de dependências do monorepo
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY apps/api/package.json ./apps/api/
+COPY apps/api/prisma ./apps/api/prisma
+COPY apps/api/prisma.config.ts ./apps/api/prisma.config.ts
 COPY packages/schemas/package.json ./packages/schemas/
 COPY packages/utils/package.json ./packages/utils/
 COPY packages/types/package.json ./packages/types/
