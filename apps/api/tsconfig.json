@@ -5,7 +5,7 @@
     "rootDir": "src",
     "types": ["node"],
     "module": "CommonJS",
-    "moduleResolution": "Node"
+    "moduleResolution": "Node10"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
