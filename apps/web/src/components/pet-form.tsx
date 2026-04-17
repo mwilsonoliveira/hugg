@@ -9,8 +9,10 @@ import {
   type Species,
   SRD_LABEL,
 } from "@hugg/schemas";
+import type { Situation } from "@hugg/types";
 import { ImageDropzone } from "@/components/image-dropzone";
 import { BreedCombobox } from "@/components/breed-combobox";
+import { LocationPicker } from "@/components/location-picker";
 
 const SPECIES_OPTIONS = [
   { value: "DOG", label: "Cachorro" },
@@ -53,6 +55,7 @@ export function PetForm({
 
   const selectedSpecies = useWatch({ control, name: "species" }) as Species | "";
   const selectedBreed = useWatch({ control, name: "breed" }) as string | undefined;
+  const selectedSituation = useWatch({ control, name: "situation" }) as string | "";
   const mixedBreed = selectedBreed === SRD_LABEL;
 
   // Limpa a raça apenas quando a espécie realmente muda (não no mount inicial)
@@ -243,6 +246,42 @@ export function PetForm({
           )}
         </div>
       </div>
+
+      {/* Localização */}
+      <Controller
+        name="latitude"
+        control={control}
+        render={({ field: latField }) => (
+          <Controller
+            name="longitude"
+            control={control}
+            render={({ field: lngField }) => (
+              <Controller
+                name="locationNote"
+                control={control}
+                render={({ field: noteField }) => (
+                  <LocationPicker
+                    situation={selectedSituation as "" | Situation}
+                    latitude={latField.value as number | undefined}
+                    longitude={lngField.value as number | undefined}
+                    locationNote={noteField.value as string | undefined}
+                    onLocationChange={(lat, lng) => {
+                      latField.onChange(lat);
+                      lngField.onChange(lng);
+                    }}
+                    onLocationNoteChange={noteField.onChange}
+                    onClear={() => {
+                      latField.onChange(undefined);
+                      lngField.onChange(undefined);
+                      noteField.onChange(undefined);
+                    }}
+                  />
+                )}
+              />
+            )}
+          />
+        )}
+      />
 
       {/* Submit */}
       <button

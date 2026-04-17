@@ -51,6 +51,9 @@ export function EditPetForm({ pet }: EditPetFormProps) {
           description: pet.description ?? undefined,
           imageUrls: pet.imageUrls,
           waitingSince: pet.waitingSince,
+          latitude: pet.latitude ?? undefined,
+          longitude: pet.longitude ?? undefined,
+          locationNote: pet.locationNote ?? undefined,
         }}
         onSubmit={onSubmit}
         submitLabel="Salvar alterações"

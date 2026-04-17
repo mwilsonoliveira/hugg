@@ -124,6 +124,7 @@ const petBaseSchema = z.object({
     .refine((d) => d <= new Date(), { message: "A data não pode ser no futuro" }),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
+  locationNote: z.string().optional(),
 });
 
 const SPECIES_WITH_BREEDS = ["DOG", "CAT", "BIRD", "RABBIT"] as const;
@@ -162,6 +163,7 @@ export const petResponseSchema = z.object({
   waitingSince: z.coerce.date(),
   latitude: z.number().nullable(),
   longitude: z.number().nullable(),
+  locationNote: z.string().nullable(),
   createdById: z.string(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),

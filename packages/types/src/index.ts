@@ -26,6 +26,7 @@ export interface Pet {
   waitingSince: Date;
   latitude?: number;
   longitude?: number;
+  locationNote?: string;
   createdById: string;
   createdAt: Date;
   updatedAt: Date;
