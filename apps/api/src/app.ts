@@ -5,7 +5,7 @@ import { petsRoutes } from "./routes/pets";
 import { breedsRoutes } from "./routes/breeds";
 import { searchesRoutes } from "./routes/searches";
 
-const app = Fastify({ logger: true });
+const app = Fastify({ logger: true, bodyLimit: 10 * 1024 * 1024 });
 
 app.register(cors, {
   origin: process.env.WEB_URL ?? "http://localhost:3000",

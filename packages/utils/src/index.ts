@@ -9,7 +9,7 @@ export function getDistanceKm(
   lat1: number,
   lon1: number,
   lat2: number,
-  lon2: number
+  lon2: number,
 ): number {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -35,8 +35,8 @@ export function speciesLabel(species: string): string {
 
 export function situationLabel(situation: string): string {
   const labels: Record<string, string> = {
-    SHELTER: "Em abrigo",
     ABANDONED: "Abandonado",
+    SHELTER: "Em abrigo",
     FOSTER: "Em lar temporário",
     STREET: "Na rua",
   };

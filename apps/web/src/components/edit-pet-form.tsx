@@ -43,14 +43,19 @@ export function EditPetForm({ pet }: EditPetFormProps) {
       <PetForm
         key={pet.id}
         defaultValues={{
-          name: pet.name,
+          name: pet.name ?? undefined,
           species: pet.species,
           situation: pet.situation,
+          gender: pet.gender ?? undefined,
           breed: pet.breed ?? undefined,
           age: pet.age ?? undefined,
           description: pet.description ?? undefined,
           imageUrls: pet.imageUrls,
           waitingSince: pet.waitingSince,
+          latitude: pet.latitude ?? undefined,
+          longitude: pet.longitude ?? undefined,
+          locationNote: pet.locationNote ?? undefined,
+          locationPhone: pet.locationPhone ?? undefined,
         }}
         onSubmit={onSubmit}
         submitLabel="Salvar alterações"
