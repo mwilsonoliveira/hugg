@@ -1,5 +1,6 @@
 "use client";
 
+import { useTransition } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import Link from "next/link";
 import { logoutAction } from "@/app/actions/auth";
@@ -18,6 +19,14 @@ const menuItems = [
 ];
 
 export function UserDropdown({ user }: UserDropdownProps) {
+  const [isPending, startTransition] = useTransition();
+
+  const handleLogout = () => {
+    startTransition(() => {
+      logoutAction();
+    });
+  };
+
   const initials = user.name
     .split(" ")
     .map((n) => n[0])
@@ -61,14 +70,13 @@ export function UserDropdown({ user }: UserDropdownProps) {
           <DropdownMenu.Separator className="my-1 h-px bg-gray-100" />
 
           <DropdownMenu.Item asChild>
-            <form action={logoutAction}>
-              <button
-                type="submit"
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 rounded-lg hover:bg-red-50 cursor-pointer outline-none focus:bg-red-50 transition-colors"
-              >
-                Sair
-              </button>
-            </form>
+            <button
+              onClick={handleLogout}
+              disabled={isPending}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 rounded-lg hover:bg-red-50 cursor-pointer outline-none focus:bg-red-50 transition-colors disabled:opacity-50"
+            >
+              {isPending ? "Saindo..." : "Sair"}
+            </button>
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
