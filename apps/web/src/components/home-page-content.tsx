@@ -142,9 +142,6 @@ export function HomePageContent({ initialData }: HomePageContentProps) {
 
       {/* Grid principal */}
       <div className="max-w-7xl mx-auto px-4 py-6">
-        {nearbyPets.length > 0 && !loading && (
-          <p className="text-sm font-semibold text-gray-700 mb-4">Outros animais</p>
-        )}
         {loading ? (
           <div className="w-full columns-1 sm:columns-2 md:columns-3 xl:columns-4 gap-3 space-y-3">
             {Array.from({ length: PAGE_SIZE }).map((_, i) => (
