@@ -12,6 +12,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { useUserLocation } from "@/hooks/use-user-location";
 import { NearbyPetsSection } from "@/components/nearby-pets-section";
 import type { PetWithDistance } from "@hugg/schemas";
+import { Heart } from "lucide-react";
 
 const PAGE_SIZE = 12;
 
@@ -142,6 +143,14 @@ export function HomePageContent({ initialData }: HomePageContentProps) {
 
       {/* Grid principal */}
       <div className="max-w-7xl mx-auto px-4 py-6">
+        {nearbyPets.length > 0 && !loading && (
+          <div className="flex items-center gap-2 mb-3">
+            <Heart className="w-4 h-4 text-orange-500" />
+            <h2 className="text-sm font-semibold text-gray-900 leading-none">
+              Adote
+            </h2>
+          </div>
+        )}
         {loading ? (
           <div className="w-full columns-1 sm:columns-2 md:columns-3 xl:columns-4 gap-3 space-y-3">
             {Array.from({ length: PAGE_SIZE }).map((_, i) => (

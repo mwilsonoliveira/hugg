@@ -27,6 +27,7 @@ model Pet {
   age          Int?
   description  String?
   imageUrls    String[]
+  gender       Gender?
   status       PetStatus  @default(AVAILABLE)
   situation    Situation  @default(SHELTER)
   waitingSince DateTime   @default(now())
@@ -62,6 +63,11 @@ model Adoption {
   pet    Pet    @relation(fields: [petId], references: [id])
   userId String
   user   User   @relation(fields: [userId], references: [id])
+}
+
+enum Gender {
+  MALE
+  FEMALE
 }
 
 enum Situation {

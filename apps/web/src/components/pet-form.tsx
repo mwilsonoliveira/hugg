@@ -13,6 +13,7 @@ import type { Situation } from "@hugg/types";
 import { ImageDropzone } from "@/components/image-dropzone";
 import { BreedCombobox } from "@/components/breed-combobox";
 import { LocationPicker } from "@/components/location-picker";
+import { Shuffle } from "lucide-react";
 
 const SPECIES_OPTIONS = [
   { value: "DOG", label: "Cachorro" },
@@ -23,11 +24,32 @@ const SPECIES_OPTIONS = [
 ];
 
 const SITUATION_OPTIONS = [
-  { value: "SHELTER", label: "Em abrigo" },
   { value: "ABANDONED", label: "Abandonado" },
+  { value: "SHELTER", label: "Em abrigo" },
   { value: "FOSTER", label: "Em lar temporário" },
   { value: "STREET", label: "Na rua" },
 ];
+
+const GENDER_OPTIONS = [
+  { value: "MALE", label: "Macho" },
+  { value: "FEMALE", label: "Fêmea" },
+];
+
+const PET_NAMES = [
+  "Amendoim", "Biscoito", "Caramelo", "Docinho", "Farofa",
+  "Gelatina", "Linguiça", "Mortadela", "Paçoca", "Rapadura",
+  "Tapioca", "Açaí", "Brigadeiro", "Canjica", "Goiabada",
+  "Tucupi", "Cuscuz", "Bolinho", "Coxinha", "Pipoca",
+  "Pudim", "Torta", "Sonho", "Trovão", "Relâmpago",
+  "Neblina", "Bruma", "Ventania", "Chuvisco", "Garoa",
+  "Granizo", "Batatinha", "Cebolinha", "Manjericão",
+  "Alecrim", "Coentro", "Pimenta", "Sálvia", "Orégano",
+  "Pindoca", "Quirela", "Farinha", "Pamonha", "Canjiquinha",
+];
+
+function randomPetName(): string {
+  return PET_NAMES[Math.floor(Math.random() * PET_NAMES.length)]!;
+}
 
 interface PetFormProps {
   defaultValues?: Partial<CreatePetInput>;
@@ -58,7 +80,6 @@ export function PetForm({
   const selectedSituation = useWatch({ control, name: "situation" }) as string | "";
   const mixedBreed = selectedBreed === SRD_LABEL;
 
-  // Limpa a raça apenas quando a espécie realmente muda (não no mount inicial)
   const prevSpeciesRef = useRef<string | undefined>(defaultValues?.species);
   useEffect(() => {
     if (selectedSpecies === prevSpeciesRef.current) return;
@@ -99,155 +120,7 @@ export function PetForm({
         />
       </div>
 
-      {/* Informações básicas */}
-      <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col gap-4">
-        <h2 className="text-sm font-semibold text-gray-700">
-          Informações básicas
-        </h2>
-
-        {/* Nome */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">
-            Nome <span className="text-red-500">*</span>
-          </label>
-          <input
-            {...register("name")}
-            placeholder="Ex: Bolinha"
-            className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
-          />
-          {errors.name && (
-            <p className="text-xs text-red-500">{errors.name.message}</p>
-          )}
-        </div>
-
-        {/* Espécie + Raça */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">
-              Espécie <span className="text-red-500">*</span>
-            </label>
-            <select
-              {...register("species")}
-              className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
-            >
-              <option value="">Selecione</option>
-              {SPECIES_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-            {errors.species && (
-              <p className="text-xs text-red-500">{errors.species.message}</p>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Controller
-              name="breed"
-              control={control}
-              render={({ field }) => (
-                <BreedCombobox
-                  species={selectedSpecies}
-                  value={field.value ?? ""}
-                  onChange={field.onChange}
-                  error={errors.breed?.message}
-                />
-              )}
-            />
-            <label className="flex items-center gap-2 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={mixedBreed}
-                onChange={(e) => handleMixedBreedChange(e.target.checked)}
-                className="w-3.5 h-3.5 rounded border-gray-300 accent-orange-500"
-              />
-              <span className="text-xs text-gray-500">Sem raça definida</span>
-            </label>
-          </div>
-        </div>
-
-        {/* Situação + Idade */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">
-              Situação <span className="text-red-500">*</span>
-            </label>
-            <select
-              {...register("situation")}
-              className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
-            >
-              <option value="">Selecione</option>
-              {SITUATION_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-            {errors.situation && (
-              <p className="text-xs text-red-500">{errors.situation.message}</p>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">
-              Idade (anos)
-            </label>
-            <input
-              {...register("age", { valueAsNumber: true })}
-              type="number"
-              min={0}
-              placeholder="Ex: 2"
-              className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
-            />
-            {errors.age && (
-              <p className="text-xs text-red-500">{errors.age.message}</p>
-            )}
-          </div>
-        </div>
-
-        {/* Aguardando desde */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">
-            Aguardando desde <span className="text-red-500">*</span>
-          </label>
-          <Controller
-            name="waitingSince"
-            control={control}
-            render={({ field }) => (
-              <input
-                type="date"
-                value={field.value ? toDateInputValue(field.value) : ""}
-                onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value + "T00:00:00") : null)}
-                onBlur={field.onBlur}
-                max={new Date().toISOString().split("T")[0]}
-                className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
-              />
-            )}
-          />
-          {errors.waitingSince && (
-            <p className="text-xs text-red-500">Informe uma data</p>
-          )}
-        </div>
-
-        {/* Descrição */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">
-            Descrição <span className="text-red-500">*</span>
-          </label>
-          <textarea
-            {...register("description")}
-            rows={3}
-            placeholder="Conte um pouco sobre o animal..."
-            className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent resize-none"
-          />
-          {errors.description && (
-            <p className="text-xs text-red-500">{errors.description.message}</p>
-          )}
-        </div>
-      </div>
-
-      {/* Localização */}
+      {/* Localização — logo após fotos */}
       <Controller
         name="latitude"
         control={control}
@@ -292,6 +165,166 @@ export function PetForm({
         )}
       />
 
+      {/* Informações básicas */}
+      <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col gap-4">
+        <h2 className="text-sm font-semibold text-gray-700">Informações básicas</h2>
+
+        {/* Nome + randomizer */}
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium text-gray-700">Nome</label>
+            <button
+              type="button"
+              onClick={() =>
+                setValue("name", randomPetName(), { shouldDirty: true, shouldValidate: true })
+              }
+              className="flex items-center gap-1 text-xs text-orange-500 hover:text-orange-600 transition-colors"
+            >
+              <Shuffle className="w-3 h-3" />
+              Invente um nome
+            </button>
+          </div>
+          <input
+            {...register("name")}
+            placeholder="Ex: Bolinha"
+            className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+          />
+          {errors.name && (
+            <p className="text-xs text-red-500">{errors.name.message}</p>
+          )}
+        </div>
+
+        {/* Espécie + Raça */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-700">
+              Espécie <span className="text-red-500">*</span>
+            </label>
+            <select
+              {...register("species")}
+              className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
+            >
+              <option value="">Selecione</option>
+              {SPECIES_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+            {errors.species && (
+              <p className="text-xs text-red-500">{errors.species.message}</p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Controller
+              name="breed"
+              control={control}
+              render={({ field }) => (
+                <BreedCombobox
+                  species={selectedSpecies}
+                  value={field.value ?? ""}
+                  onChange={field.onChange}
+                  error={errors.breed?.message}
+                />
+              )}
+            />
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={mixedBreed}
+                onChange={(e) => handleMixedBreedChange(e.target.checked)}
+                className="w-3.5 h-3.5 rounded border-gray-300 accent-orange-500"
+              />
+              <span className="text-xs text-gray-500">Sem raça definida</span>
+            </label>
+          </div>
+        </div>
+
+        {/* Situação + Idade + Sexo */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-700">
+              Situação <span className="text-red-500">*</span>
+            </label>
+            <select
+              {...register("situation")}
+              className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
+            >
+              <option value="">Selecione</option>
+              {SITUATION_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+            {errors.situation && (
+              <p className="text-xs text-red-500">{errors.situation.message}</p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-700">Idade (anos)</label>
+            <input
+              {...register("age", { valueAsNumber: true })}
+              type="number"
+              min={0}
+              placeholder="Ex: 2"
+              className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+            />
+            {errors.age && (
+              <p className="text-xs text-red-500">{errors.age.message}</p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-700">Sexo</label>
+            <select
+              {...register("gender")}
+              className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
+            >
+              <option value="">Não informado</option>
+              {GENDER_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Aguardando desde */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">
+            Aguardando desde <span className="text-red-500">*</span>
+          </label>
+          <Controller
+            name="waitingSince"
+            control={control}
+            render={({ field }) => (
+              <input
+                type="date"
+                value={field.value ? toDateInputValue(field.value) : ""}
+                onChange={(e) =>
+                  field.onChange(e.target.value ? new Date(e.target.value + "T00:00:00") : null)
+                }
+                onBlur={field.onBlur}
+                max={new Date().toISOString().split("T")[0]}
+                className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+              />
+            )}
+          />
+          {errors.waitingSince && (
+            <p className="text-xs text-red-500">Informe uma data</p>
+          )}
+        </div>
+
+        {/* Descrição */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">Descrição</label>
+          <textarea
+            {...register("description")}
+            rows={3}
+            placeholder="Conte um pouco sobre o animal..."
+            className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent resize-none"
+          />
+        </div>
+      </div>
+
       {/* Submit */}
       <button
         type="submit"
@@ -305,19 +338,8 @@ export function PetForm({
             fill="none"
             viewBox="0 0 24 24"
           >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v8H4z"
-            />
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
           </svg>
         )}
         {isSubmitting ? submittingLabel : submitLabel}

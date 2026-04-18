@@ -93,6 +93,8 @@ export const BREEDS_BY_SPECIES = {
 
 export type Species = keyof typeof BREEDS_BY_SPECIES;
 
+export const genderSchema = z.enum(["MALE", "FEMALE"]);
+
 export const speciesSchema = z.enum(["DOG", "CAT", "BIRD", "RABBIT", "OTHER"], {
   errorMap: () => ({ message: "Espécie é obrigatória" }),
 });
@@ -103,9 +105,10 @@ export const situationSchema = z.enum(["SHELTER", "ABANDONED", "FOSTER", "STREET
 export const adoptionStatusSchema = z.enum(["PENDING", "APPROVED", "REJECTED"]);
 
 const petBaseSchema = z.object({
-  name: z.string().min(1, "Nome é obrigatório"),
+  name: z.string().optional(),
   species: speciesSchema,
   situation: situationSchema,
+  gender: genderSchema.optional(),
   breed: z.string().optional(),
   age: z.coerce
     .number({ invalid_type_error: "Informe um número válido" })
@@ -113,7 +116,7 @@ const petBaseSchema = z.object({
     .min(0, "Idade inválida")
     .optional()
     .or(z.literal(NaN).transform(() => undefined)),
-  description: z.string().min(1, "Descrição é obrigatória"),
+  description: z.string().optional(),
   imageUrls: z.array(z.string()).min(1, "Adicione pelo menos uma foto"),
   waitingSince: z.coerce
     .date({
@@ -159,6 +162,7 @@ export const petResponseSchema = z.object({
   age: z.number().nullable(),
   description: z.string().nullable(),
   imageUrls: z.array(z.string()),
+  gender: genderSchema.nullable(),
   status: petStatusSchema,
   situation: situationSchema,
   waitingSince: z.coerce.date(),
