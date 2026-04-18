@@ -9,7 +9,6 @@ import {
   type Species,
   SRD_LABEL,
 } from "@hugg/schemas";
-import type { Situation } from "@hugg/types";
 import { ImageDropzone } from "@/components/image-dropzone";
 import { BreedCombobox } from "@/components/breed-combobox";
 import { LocationPicker } from "@/components/location-picker";
@@ -138,7 +137,6 @@ export function PetForm({
                     control={control}
                     render={({ field: phoneField }) => (
                       <LocationPicker
-                        situation={selectedSituation as "" | Situation}
                         latitude={latField.value as number | undefined}
                         longitude={lngField.value as number | undefined}
                         locationNote={noteField.value as string | undefined}

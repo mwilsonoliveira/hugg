@@ -21,7 +21,7 @@ model User {
 
 model Pet {
   id           String    @id @default(cuid())
-  name         String
+  name         String?
   species      Species
   breed        String?
   age          Int?

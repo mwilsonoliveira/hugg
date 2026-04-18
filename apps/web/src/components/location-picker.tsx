@@ -9,10 +9,8 @@ import {
   type MapMouseEvent,
 } from "@vis.gl/react-google-maps";
 import { MapPinned, Loader2 } from "lucide-react";
-import type { Situation } from "@hugg/types";
 
 interface LocationPickerProps {
-  situation: Situation | "";
   latitude?: number;
   longitude?: number;
   locationNote?: string;
@@ -40,7 +38,6 @@ interface PanRequest {
   id: number;
 }
 
-// Pans and zooms the map imperatively when a PanRequest arrives.
 function MapController({ panRequest }: { panRequest: PanRequest | null }) {
   const map = useMap();
 
@@ -109,7 +106,6 @@ function MapPicker({
 }
 
 export function LocationPicker({
-  situation,
   latitude,
   longitude,
   locationNote,
@@ -145,7 +141,7 @@ export function LocationPicker({
       (err) => {
         setGeoLoading(false);
         if (err.code === err.PERMISSION_DENIED) {
-          setGeoError("Permissão de localização negada. Permita o acesso no navegador.");
+          setGeoError("Permissão negada. Permita o acesso à localização no navegador.");
         } else {
           setGeoError("Não foi possível obter a localização.");
         }
@@ -177,6 +173,7 @@ export function LocationPicker({
 
   return (
     <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col gap-4">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-gray-700">Localização</h2>
         <button
@@ -188,59 +185,30 @@ export function LocationPicker({
         </button>
       </div>
 
-      {/* Campos contextuais por situação */}
-      {situation === "FOSTER" ? (
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">Nome do responsável</label>
-            <input
-              type="text"
-              value={locationNote ?? ""}
-              onChange={(e) => onLocationNoteChange(e.target.value)}
-              placeholder="Ex: João Silva"
-              className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">Telefone</label>
-            <input
-              type="text"
-              inputMode="numeric"
-              value={locationPhone ?? ""}
-              onChange={(e) => onLocationPhoneChange(applyPhoneMask(e.target.value))}
-              placeholder="(51) 99999-9999"
-              className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
-            />
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">
-            {situation === "SHELTER"
-              ? "Nome do abrigo"
-              : situation === "STREET" || situation === "ABANDONED"
-              ? "Descrição do local"
-              : "Informações do local"}
-          </label>
-          <input
-            type="text"
-            value={locationNote ?? ""}
-            onChange={(e) => onLocationNoteChange(e.target.value)}
-            placeholder={
-              situation === "SHELTER"
-                ? "Ex: Abrigo Amigo dos Animais, Rua das Flores, 123"
-                : situation === "STREET" || situation === "ABANDONED"
-                ? "Ex: Próximo ao Parque da Aclimação, SP"
-                : "Descreva onde o animal está"
-            }
-            className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
-          />
-        </div>
-      )}
-
       {/* Mapa */}
       <div className="flex flex-col gap-2">
-        <p className="text-sm font-medium text-gray-700">Indique no mapa onde o animal está</p>
+        {/* Título do mapa + botão GPS na mesma linha */}
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-sm font-medium text-gray-700">
+            Indique no mapa onde o animal está
+          </p>
+          <button
+            type="button"
+            onClick={handleUseMyLocation}
+            disabled={geoLoading}
+            className="flex items-center gap-1.5 shrink-0 text-xs text-gray-600 hover:text-orange-500 border border-gray-200 rounded-lg px-2.5 py-1.5 transition-colors disabled:opacity-50"
+          >
+            {geoLoading ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <MapPinned className="w-3.5 h-3.5" />
+            )}
+            {geoLoading ? "Obtendo..." : "Usar minha localização"}
+          </button>
+        </div>
+
+        {geoError && <p className="text-xs text-red-500">{geoError}</p>}
+
         {apiKey ? (
           <APIProvider apiKey={apiKey}>
             <MapPicker
@@ -257,29 +225,35 @@ export function LocationPicker({
             </p>
           </div>
         )}
+
         <p className="text-xs text-gray-400">
           Clique no mapa ou arraste o marcador para ajustar a posição.
         </p>
       </div>
 
-      {/* Botão GPS */}
-      <div className="flex flex-col gap-1.5">
-        <button
-          type="button"
-          onClick={handleUseMyLocation}
-          disabled={geoLoading}
-          className="flex items-center gap-2 self-start text-sm text-gray-600 hover:text-orange-500 border border-gray-200 rounded-lg px-3 py-2 transition-colors disabled:opacity-50"
-        >
-          {geoLoading ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <MapPinned className="w-4 h-4" />
-          )}
-          {geoLoading ? "Obtendo localização..." : "Usar minha localização"}
-        </button>
-        {geoError && (
-          <p className="text-xs text-red-500">{geoError}</p>
-        )}
+      {/* Contato — abaixo do mapa */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">Nome do contato</label>
+          <input
+            type="text"
+            value={locationNote ?? ""}
+            onChange={(e) => onLocationNoteChange(e.target.value)}
+            placeholder="Ex: João Silva"
+            className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">Telefone</label>
+          <input
+            type="text"
+            inputMode="numeric"
+            value={locationPhone ?? ""}
+            onChange={(e) => onLocationPhoneChange(applyPhoneMask(e.target.value))}
+            placeholder="(51) 99999-9999"
+            className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+          />
+        </div>
       </div>
     </div>
   );
