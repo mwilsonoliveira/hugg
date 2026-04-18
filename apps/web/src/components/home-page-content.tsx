@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { PetResponse, PaginatedPets } from "@hugg/schemas";
+import type { SessionUser } from "@/lib/session";
 import { PetCard } from "@/components/pet-card";
 import { PetCardSkeleton } from "@/components/pet-card-skeleton";
 import { PetFilters } from "@/components/pet-filters";
@@ -18,9 +19,10 @@ const PAGE_SIZE = 12;
 
 interface HomePageContentProps {
   initialData: PaginatedPets;
+  user: SessionUser;
 }
 
-export function HomePageContent({ initialData }: HomePageContentProps) {
+export function HomePageContent({ initialData, user }: HomePageContentProps) {
   const [pets, setPets] = useState<PetResponse[]>(initialData.data);
   const [total, setTotal] = useState(initialData.total);
   const [search, setSearch] = useState("");
@@ -119,7 +121,7 @@ export function HomePageContent({ initialData }: HomePageContentProps) {
                 </p>
               </div>
             </div>
-            <UserDropdown />
+            <UserDropdown user={user} />
           </div>
 
           {/* Filters row */}
