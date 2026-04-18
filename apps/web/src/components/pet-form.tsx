@@ -260,21 +260,30 @@ export function PetForm({
                 name="locationNote"
                 control={control}
                 render={({ field: noteField }) => (
-                  <LocationPicker
-                    situation={selectedSituation as "" | Situation}
-                    latitude={latField.value as number | undefined}
-                    longitude={lngField.value as number | undefined}
-                    locationNote={noteField.value as string | undefined}
-                    onLocationChange={(lat, lng) => {
-                      latField.onChange(lat);
-                      lngField.onChange(lng);
-                    }}
-                    onLocationNoteChange={noteField.onChange}
-                    onClear={() => {
-                      latField.onChange(undefined);
-                      lngField.onChange(undefined);
-                      noteField.onChange(undefined);
-                    }}
+                  <Controller
+                    name="locationPhone"
+                    control={control}
+                    render={({ field: phoneField }) => (
+                      <LocationPicker
+                        situation={selectedSituation as "" | Situation}
+                        latitude={latField.value as number | undefined}
+                        longitude={lngField.value as number | undefined}
+                        locationNote={noteField.value as string | undefined}
+                        locationPhone={phoneField.value as string | undefined}
+                        onLocationChange={(lat, lng) => {
+                          latField.onChange(lat);
+                          lngField.onChange(lng);
+                        }}
+                        onLocationNoteChange={noteField.onChange}
+                        onLocationPhoneChange={phoneField.onChange}
+                        onClear={() => {
+                          latField.onChange(undefined);
+                          lngField.onChange(undefined);
+                          noteField.onChange(undefined);
+                          phoneField.onChange(undefined);
+                        }}
+                      />
+                    )}
                   />
                 )}
               />

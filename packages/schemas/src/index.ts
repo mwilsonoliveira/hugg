@@ -125,6 +125,7 @@ const petBaseSchema = z.object({
   latitude: z.number().optional(),
   longitude: z.number().optional(),
   locationNote: z.string().optional(),
+  locationPhone: z.string().optional(),
 });
 
 const SPECIES_WITH_BREEDS = ["DOG", "CAT", "BIRD", "RABBIT"] as const;
@@ -164,6 +165,7 @@ export const petResponseSchema = z.object({
   latitude: z.number().nullable(),
   longitude: z.number().nullable(),
   locationNote: z.string().nullable(),
+  locationPhone: z.string().nullable(),
   createdById: z.string(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),

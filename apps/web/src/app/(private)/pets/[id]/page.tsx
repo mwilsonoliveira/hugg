@@ -161,11 +161,15 @@ export default async function PetDetailPage({ params }: Props) {
 
         {/* Localização */}
         {(pet.locationNote ||
+          pet.locationPhone ||
           (pet.latitude != null && pet.longitude != null)) && (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col gap-3">
             <h2 className="text-sm font-semibold text-gray-700">Localização</h2>
             {pet.locationNote && (
               <p className="text-sm text-gray-600">{pet.locationNote}</p>
+            )}
+            {pet.locationPhone && (
+              <p className="text-sm text-gray-600">{pet.locationPhone}</p>
             )}
             {pet.latitude != null && pet.longitude != null && (
               <>

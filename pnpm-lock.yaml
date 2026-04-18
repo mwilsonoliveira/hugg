@@ -208,6 +208,10 @@ importers:
       zustand:
         specifier: ^4.5.0
         version: 4.5.7(@types/react@18.3.28)(react@18.3.1)
+    devDependencies:
+      '@types/google.maps':
+        specifier: ^3.64.0
+        version: 3.64.0
 
   packages/config:
     devDependencies:

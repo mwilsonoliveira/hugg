@@ -54,6 +54,7 @@ export function EditPetForm({ pet }: EditPetFormProps) {
           latitude: pet.latitude ?? undefined,
           longitude: pet.longitude ?? undefined,
           locationNote: pet.locationNote ?? undefined,
+          locationPhone: pet.locationPhone ?? undefined,
         }}
         onSubmit={onSubmit}
         submitLabel="Salvar alterações"

@@ -27,6 +27,7 @@ export interface Pet {
   latitude?: number;
   longitude?: number;
   locationNote?: string;
+  locationPhone?: string;
   createdById: string;
   createdAt: Date;
   updatedAt: Date;
