@@ -13,7 +13,7 @@ import { UserDropdown } from "@/components/user-dropdown";
 export default function NewPetPage() {
   const router = useRouter();
   const { requestNavigation } = useUnsavedChanges();
-  const user = useUser();
+  const userCtx = useUser();
 
   const onSubmit = async (data: CreatePetInput) => {
     try {
@@ -39,7 +39,7 @@ export default function NewPetPage() {
             <h1 className="text-base font-bold text-gray-900 leading-tight">Achei um pet!</h1>
             <p className="text-xs text-gray-500">Preencha os dados do animal encontrado.</p>
           </div>
-          {user && <UserDropdown user={user} />}
+          {userCtx && <UserDropdown user={userCtx.user} />}
         </div>
       </div>
 

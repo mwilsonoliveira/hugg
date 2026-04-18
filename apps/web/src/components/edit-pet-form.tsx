@@ -17,7 +17,7 @@ interface EditPetFormProps {
 export function EditPetForm({ pet }: EditPetFormProps) {
   const router = useRouter();
   const { requestNavigation } = useUnsavedChanges();
-  const user = useUser();
+  const userCtx = useUser();
 
   const onSubmit = async (data: CreatePetInput) => {
     try {
@@ -43,7 +43,7 @@ export function EditPetForm({ pet }: EditPetFormProps) {
             <h1 className="text-base font-bold text-gray-900 leading-tight">Editar pet</h1>
             <p className="text-xs text-gray-500">Atualize os dados de {pet.name}.</p>
           </div>
-          {user && <UserDropdown user={user} />}
+          {userCtx && <UserDropdown user={userCtx.user} />}
         </div>
       </div>
 
