@@ -6,6 +6,8 @@ import { type CreatePetInput, type PetResponse } from "@hugg/schemas";
 import { PetForm } from "@/components/pet-form";
 import { updatePetAction } from "@/app/actions/pets";
 import { useUnsavedChanges } from "@/components/unsaved-changes-context";
+import { useUser } from "@/components/user-context";
+import { UserDropdown } from "@/components/user-dropdown";
 import { ArrowLeft } from "@phosphor-icons/react";
 
 interface EditPetFormProps {
@@ -15,6 +17,7 @@ interface EditPetFormProps {
 export function EditPetForm({ pet }: EditPetFormProps) {
   const router = useRouter();
   const { requestNavigation } = useUnsavedChanges();
+  const user = useUser();
 
   const onSubmit = async (data: CreatePetInput) => {
     try {
@@ -36,10 +39,11 @@ export function EditPetForm({ pet }: EditPetFormProps) {
           >
             <ArrowLeft size={20} className="text-gray-600" />
           </button>
-          <div>
+          <div className="flex-1">
             <h1 className="text-base font-bold text-gray-900 leading-tight">Editar pet</h1>
             <p className="text-xs text-gray-500">Atualize os dados de {pet.name}.</p>
           </div>
+          {user && <UserDropdown user={user} />}
         </div>
       </div>
 

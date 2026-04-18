@@ -148,14 +148,22 @@ export function HomePageContent({ initialData, user }: HomePageContentProps) {
 
       {/* Mobile search overlay */}
       {mobileSearchOpen && (
-        <div className="sm:hidden fixed inset-0 z-40 bg-black/40" onClick={() => setMobileSearchOpen(false)}>
+        <div
+          className="sm:hidden fixed inset-0 z-40 bg-black/40"
+          onClick={() => setMobileSearchOpen(false)}
+        >
           <div
             className="bg-white px-4 pt-4 pb-5 shadow-lg"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 mb-3">
-              <p className="text-sm font-semibold text-gray-700 flex-1">Buscar pet</p>
-              <button onClick={() => setMobileSearchOpen(false)} className="text-gray-400 hover:text-gray-600">
+              <p className="text-sm font-semibold text-gray-700 flex-1">
+                Buscar pet
+              </p>
+              <button
+                onClick={() => setMobileSearchOpen(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>

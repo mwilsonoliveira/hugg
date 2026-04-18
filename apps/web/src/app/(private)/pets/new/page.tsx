@@ -7,10 +7,13 @@ import { PetForm } from "@/components/pet-form";
 import { createPet } from "@/lib/api";
 import { ArrowLeft } from "@phosphor-icons/react";
 import { useUnsavedChanges } from "@/components/unsaved-changes-context";
+import { useUser } from "@/components/user-context";
+import { UserDropdown } from "@/components/user-dropdown";
 
 export default function NewPetPage() {
   const router = useRouter();
   const { requestNavigation } = useUnsavedChanges();
+  const user = useUser();
 
   const onSubmit = async (data: CreatePetInput) => {
     try {
@@ -32,10 +35,11 @@ export default function NewPetPage() {
           >
             <ArrowLeft size={20} className="text-gray-600" />
           </button>
-          <div>
+          <div className="flex-1">
             <h1 className="text-base font-bold text-gray-900 leading-tight">Achei um pet!</h1>
             <p className="text-xs text-gray-500">Preencha os dados do animal encontrado.</p>
           </div>
+          {user && <UserDropdown user={user} />}
         </div>
       </div>
 

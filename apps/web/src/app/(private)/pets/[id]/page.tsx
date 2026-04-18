@@ -2,10 +2,12 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { getPetById } from "@/lib/api";
+import { getCurrentUser } from "@/lib/session";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { PetPhotoCarousel } from "@/components/pet-photo-carousel";
 import { speciesLabel, situationLabel, waitingDuration } from "@hugg/utils";
 import { ShareButton } from "@/components/share-button";
+import { UserDropdown } from "@/components/user-dropdown";
 
 interface Props {
   params: { id: string };
@@ -46,6 +48,8 @@ export default async function PetDetailPage({ params }: Props) {
   } catch {
     notFound();
   }
+
+  const user = await getCurrentUser();
 
   const duration = waitingDuration(pet.waitingSince);
 
@@ -88,6 +92,7 @@ export default async function PetDetailPage({ params }: Props) {
             />
             <Link
               href={`/pets/${pet.id}/edit`}
+
               className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-50 transition-colors"
             >
               <svg
@@ -101,6 +106,7 @@ export default async function PetDetailPage({ params }: Props) {
               </svg>
               Editar
             </Link>
+            {user && <UserDropdown user={user} />}
           </div>
         </div>
       </div>
