@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { type CreatePetInput, type PetResponse } from "@hugg/schemas";
 import { PetForm } from "@/components/pet-form";
 import { updatePetAction } from "@/app/actions/pets";
+import { useUnsavedChanges } from "@/components/unsaved-changes-context";
 import { ArrowLeft } from "@phosphor-icons/react";
 
 interface EditPetFormProps {
@@ -13,6 +14,7 @@ interface EditPetFormProps {
 
 export function EditPetForm({ pet }: EditPetFormProps) {
   const router = useRouter();
+  const { requestNavigation } = useUnsavedChanges();
 
   const onSubmit = async (data: CreatePetInput) => {
     try {
@@ -29,7 +31,7 @@ export function EditPetForm({ pet }: EditPetFormProps) {
       <div className="sticky top-0 z-10 bg-gray-50/95 backdrop-blur-sm border-b border-gray-100">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <button
-            onClick={() => router.back()}
+            onClick={() => requestNavigation(() => router.back())}
             className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors shrink-0"
           >
             <ArrowLeft size={20} className="text-gray-600" />

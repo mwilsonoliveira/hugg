@@ -12,6 +12,7 @@ import {
 import { ImageDropzone } from "@/components/image-dropzone";
 import { BreedCombobox } from "@/components/breed-combobox";
 import { LocationPicker } from "@/components/location-picker";
+import { useUnsavedChanges } from "@/components/unsaved-changes-context";
 import { Shuffle } from "lucide-react";
 
 const SPECIES_OPTIONS = [
@@ -68,7 +69,7 @@ export function PetForm({
     handleSubmit,
     control,
     setValue,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<CreatePetInput>({
     resolver: zodResolver(createPetSchema),
     defaultValues,
@@ -78,6 +79,10 @@ export function PetForm({
   const selectedBreed = useWatch({ control, name: "breed" }) as string | undefined;
   const selectedSituation = useWatch({ control, name: "situation" }) as string | "";
   const mixedBreed = selectedBreed === SRD_LABEL;
+
+  const { setIsDirty } = useUnsavedChanges();
+  useEffect(() => { setIsDirty(isDirty); }, [isDirty, setIsDirty]);
+  useEffect(() => () => { setIsDirty(false); }, [setIsDirty]);
 
   const prevSpeciesRef = useRef<string | undefined>(defaultValues?.species);
   useEffect(() => {
