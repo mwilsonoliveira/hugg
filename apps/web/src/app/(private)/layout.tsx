@@ -1,5 +1,6 @@
 import { getCurrentUser } from "@/lib/session";
 import { redirect } from "next/navigation";
+import { MobileNavLayout } from "@/components/mobile-nav-layout";
 
 export default async function PrivateLayout({
   children,
@@ -12,5 +13,10 @@ export default async function PrivateLayout({
     redirect("/login");
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <MobileNavLayout />
+    </>
+  );
 }

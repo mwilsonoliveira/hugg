@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { getPetById } from "@/lib/api";
+import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { PetPhotoCarousel } from "@/components/pet-photo-carousel";
 import { speciesLabel, situationLabel, waitingDuration } from "@hugg/utils";
 import { ShareButton } from "@/components/share-button";
@@ -68,25 +69,14 @@ export default async function PetDetailPage({ params }: Props) {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+      {/* Sticky header */}
+      <div className="sticky top-0 z-10 bg-gray-50/95 backdrop-blur-sm border-b border-gray-100">
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link
             href="/"
             className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="w-5 h-5 text-gray-600"
-            >
-              <path
-                fillRule="evenodd"
-                d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z"
-                clipRule="evenodd"
-              />
-            </svg>
+            <ArrowLeft size={20} className="text-gray-600" />
           </Link>
 
           <div className="flex items-center gap-2">
@@ -113,7 +103,9 @@ export default async function PetDetailPage({ params }: Props) {
             </Link>
           </div>
         </div>
+      </div>
 
+      <div className="max-w-2xl mx-auto px-4 py-6 pb-28 sm:pb-8">
         {/* Carrossel de fotos */}
         <div className="rounded-2xl overflow-hidden mb-6 bg-white border border-gray-100 shadow-sm">
           <PetPhotoCarousel imageUrls={pet.imageUrls} name={pet.name} />
