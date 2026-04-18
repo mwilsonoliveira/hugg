@@ -1,4 +1,4 @@
-import type { PaginatedPets, CreatePetInput, UpdatePetInput, PetResponse } from "@hugg/schemas";
+import type { PaginatedPets, CreatePetInput, UpdatePetInput, PetResponse, PetWithDistance } from "@hugg/schemas";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -47,6 +47,23 @@ export async function updatePet(id: string, data: UpdatePetInput): Promise<PetRe
     throw new Error(`Erro ao atualizar pet: ${res.status}`);
   }
 
+  return res.json();
+}
+
+export async function getNearbyPets(params: {
+  lat: number;
+  lng: number;
+  radius?: number;
+  limit?: number;
+}): Promise<PetWithDistance[]> {
+  const url = new URL("/api/pets/nearby", API_URL);
+  url.searchParams.set("lat", String(params.lat));
+  url.searchParams.set("lng", String(params.lng));
+  if (params.radius) url.searchParams.set("radius", String(params.radius));
+  if (params.limit) url.searchParams.set("limit", String(params.limit));
+
+  const res = await fetch(url.toString(), { cache: "no-store" });
+  if (!res.ok) return [];
   return res.json();
 }
 

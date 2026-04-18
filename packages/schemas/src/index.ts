@@ -171,6 +171,17 @@ export const petResponseSchema = z.object({
   updatedAt: z.coerce.date(),
 });
 
+export const petWithDistanceSchema = petResponseSchema.extend({
+  distanceKm: z.number(),
+});
+
+export const nearbyPetsQuerySchema = z.object({
+  lat: z.coerce.number(),
+  lng: z.coerce.number(),
+  radius: z.coerce.number().positive().default(50),
+  limit: z.coerce.number().int().positive().max(20).default(10),
+});
+
 export const paginatedPetsSchema = z.object({
   data: z.array(petResponseSchema),
   total: z.number(),
@@ -200,6 +211,8 @@ export type UpdatePetInput = z.infer<typeof updatePetSchema>;
 export type ListPetsQuery = z.infer<typeof listPetsQuerySchema>;
 export type PetResponse = z.infer<typeof petResponseSchema>;
 export type PaginatedPets = z.infer<typeof paginatedPetsSchema>;
+export type PetWithDistance = z.infer<typeof petWithDistanceSchema>;
+export type NearbyPetsQuery = z.infer<typeof nearbyPetsQuerySchema>;
 export type CreateAdoptionInput = z.infer<typeof createAdoptionSchema>;
 export type RegisterUserInput = z.infer<typeof registerUserSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;

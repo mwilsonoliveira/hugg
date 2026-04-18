@@ -7,8 +7,11 @@ import { PetCardSkeleton } from "@/components/pet-card-skeleton";
 import { PetFilters } from "@/components/pet-filters";
 import { UserDropdown } from "@/components/user-dropdown";
 import { HuggLogo } from "@/components/hugg-logo";
-import { getPets, recordSearch } from "@/lib/api";
+import { getPets, getNearbyPets, recordSearch } from "@/lib/api";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useUserLocation } from "@/hooks/use-user-location";
+import { NearbyPetsSection } from "@/components/nearby-pets-section";
+import type { PetWithDistance } from "@hugg/schemas";
 
 const PAGE_SIZE = 12;
 
@@ -24,7 +27,10 @@ export function HomePageContent({ initialData }: HomePageContentProps) {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [nearbyPets, setNearbyPets] = useState<PetWithDistance[]>([]);
+  const [nearbyLoading, setNearbyLoading] = useState(false);
 
+  const { location, status: locationStatus } = useUserLocation();
   const debouncedSearch = useDebounce(search, 500);
 
   const fetchPets = useCallback(
@@ -53,6 +59,15 @@ export function HomePageContent({ initialData }: HomePageContentProps) {
     },
     [],
   );
+
+  useEffect(() => {
+    if (locationStatus !== "granted" || !location) return;
+    setNearbyLoading(true);
+    getNearbyPets({ lat: location.lat, lng: location.lng })
+      .then(setNearbyPets)
+      .catch(() => {})
+      .finally(() => setNearbyLoading(false));
+  }, [location, locationStatus]);
 
   useEffect(() => {
     fetchPets(debouncedSearch, waitingFilter, 1);
@@ -118,8 +133,18 @@ export function HomePageContent({ initialData }: HomePageContentProps) {
         </div>
       </div>
 
-      {/* Grid */}
+      {/* Animais próximos */}
+      {(nearbyLoading || nearbyPets.length > 0) && (
+        <div className="max-w-7xl mx-auto px-4 pt-6">
+          <NearbyPetsSection pets={nearbyPets} loading={nearbyLoading} />
+        </div>
+      )}
+
+      {/* Grid principal */}
       <div className="max-w-7xl mx-auto px-4 py-6">
+        {nearbyPets.length > 0 && !loading && (
+          <p className="text-sm font-semibold text-gray-700 mb-4">Outros animais</p>
+        )}
         {loading ? (
           <div className="w-full columns-1 sm:columns-2 md:columns-3 xl:columns-4 gap-3 space-y-3">
             {Array.from({ length: PAGE_SIZE }).map((_, i) => (
