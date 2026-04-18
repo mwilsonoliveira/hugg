@@ -72,7 +72,7 @@ export default async function PetDetailPage({ params }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <Link
-            href="/home"
+            href="/"
             className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
           >
             <svg

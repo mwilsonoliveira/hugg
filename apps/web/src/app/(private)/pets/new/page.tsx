@@ -13,7 +13,7 @@ export default function NewPetPage() {
     try {
       await createPet(data);
       toast.success("Pet cadastrado com sucesso!");
-      router.push("/home");
+      router.push("/");
     } catch {
       toast.error("Erro ao cadastrar pet. Tente novamente.");
     }
