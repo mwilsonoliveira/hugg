@@ -8,10 +8,11 @@ import { loginAction } from "@/app/actions/auth";
 import { FaPaw } from "react-icons/fa";
 
 interface LoginFormProps {
-  petImageUrl?: string;
+  petImages?: [string?, string?, string?];
 }
 
-export function LoginForm({ petImageUrl }: LoginFormProps) {
+export function LoginForm({ petImages = [] }: LoginFormProps) {
+  const [leftUrl, centerUrl, rightUrl] = petImages;
   const [error, setError] = useState<string | null>(null);
 
   const {
@@ -34,15 +35,36 @@ export function LoginForm({ petImageUrl }: LoginFormProps) {
   return (
     <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        {petImageUrl && (
-          <div className="flex justify-center mb-[-2.5rem] relative z-10">
-            <div className="w-20 h-20 rounded-full border-4 border-white shadow-md overflow-hidden bg-gray-100">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={petImageUrl}
-                alt="Pet"
-                className="w-full h-full object-cover"
-              />
+        {(leftUrl || centerUrl || rightUrl) && (
+          <div className="flex justify-center items-end mb-[-2.5rem]">
+            {/* Esquerda */}
+            <div className={`relative z-0 translate-x-5 transition-opacity ${leftUrl ? "opacity-100" : "opacity-0"}`}>
+              <div className="w-14 h-14 rounded-full border-4 border-white shadow-sm overflow-hidden bg-gray-100">
+                {leftUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={leftUrl} alt="Pet" className="w-full h-full object-cover" />
+                )}
+              </div>
+            </div>
+
+            {/* Centro */}
+            <div className="relative z-10">
+              <div className="w-20 h-20 rounded-full border-4 border-white shadow-md overflow-hidden bg-gray-100">
+                {centerUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={centerUrl} alt="Pet" className="w-full h-full object-cover" />
+                )}
+              </div>
+            </div>
+
+            {/* Direita */}
+            <div className={`relative z-0 -translate-x-5 transition-opacity ${rightUrl ? "opacity-100" : "opacity-0"}`}>
+              <div className="w-14 h-14 rounded-full border-4 border-white shadow-sm overflow-hidden bg-gray-100">
+                {rightUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={rightUrl} alt="Pet" className="w-full h-full object-cover" />
+                )}
+              </div>
             </div>
           </div>
         )}
