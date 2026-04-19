@@ -11,10 +11,10 @@ const COOKIE_OPTIONS = {
   secure: process.env.NODE_ENV === "production",
   sameSite: "lax" as const,
   path: "/",
-  maxAge: 60 * 60 * 24 * 7, // 7 days
+  maxAge: 60 * 60 * 24 * 7,
 };
 
-export async function loginAction(data: LoginInput) {
+export async function loginAction(data: LoginInput): Promise<{ error: string } | never> {
   let res: Response;
   try {
     res = await fetch(`${API_URL}/api/auth/login`, {
@@ -23,12 +23,12 @@ export async function loginAction(data: LoginInput) {
       body: JSON.stringify(data),
     });
   } catch {
-    throw new Error("Não foi possível conectar ao servidor. Tente novamente.");
+    return { error: "Não foi possível conectar ao servidor. Tente novamente." };
   }
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.error ?? "Credenciais inválidas");
+    return { error: err.error ?? "Credenciais inválidas" };
   }
 
   const { token } = await res.json();
@@ -37,7 +37,7 @@ export async function loginAction(data: LoginInput) {
   redirect("/");
 }
 
-export async function registerAction(data: RegisterUserInput) {
+export async function registerAction(data: RegisterUserInput): Promise<{ error: string } | never> {
   let res: Response;
   try {
     res = await fetch(`${API_URL}/api/auth/register`, {
@@ -46,12 +46,12 @@ export async function registerAction(data: RegisterUserInput) {
       body: JSON.stringify(data),
     });
   } catch {
-    throw new Error("Não foi possível conectar ao servidor. Tente novamente.");
+    return { error: "Não foi possível conectar ao servidor. Tente novamente." };
   }
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.error ?? "Erro ao criar conta");
+    return { error: err.error ?? "Erro ao criar conta" };
   }
 
   const { token } = await res.json();
