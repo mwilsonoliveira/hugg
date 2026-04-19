@@ -9,6 +9,7 @@ interface UserDropdownProps {
   user: {
     name: string;
     email: string;
+    avatarUrl?: string | null;
   };
 }
 
@@ -59,7 +60,9 @@ export function UserDropdown({ user }: UserDropdownProps) {
           className={avatarCls}
           aria-label="Menu do usuário"
         >
-          {initials}
+          {user.avatarUrl
+            ? <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover rounded-full" />
+            : initials}
         </button>
 
         {desktopOpen && (
@@ -101,7 +104,9 @@ export function UserDropdown({ user }: UserDropdownProps) {
         className={`sm:hidden ${avatarCls}`}
         aria-label="Menu do usuário"
       >
-        {initials}
+        {user.avatarUrl
+          ? <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover rounded-full" />
+          : initials}
       </button>
     </>
   );

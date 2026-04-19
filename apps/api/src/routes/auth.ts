@@ -13,9 +13,9 @@ const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID ?? "";
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET ?? "";
 const API_URL = process.env.API_URL ?? "http://localhost:3001";
 
-function signToken(user: { id: string; name: string; email: string }) {
+function signToken(user: { id: string; name: string; email: string; avatarUrl?: string | null }) {
   return jwt.sign(
-    { sub: user.id, name: user.name, email: user.email },
+    { sub: user.id, name: user.name, email: user.email, avatarUrl: user.avatarUrl ?? null },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRES_IN }
   );
@@ -204,11 +204,13 @@ export async function authRoutes(app: FastifyInstance) {
           where: { OR: [{ googleId: googleUser.id }, { email: googleUser.email }] },
         });
 
+        const isNewLink = !!user && !user.googleId;
+
         if (user) {
           if (!user.googleId) {
             user = await prisma.user.update({
               where: { id: user.id },
-              data: { googleId: googleUser.id, emailVerified: true, avatarUrl: user.avatarUrl ?? googleUser.picture },
+              data: { googleId: googleUser.id, emailVerified: true, avatarUrl: googleUser.picture ?? user.avatarUrl },
             });
           }
         } else {
@@ -225,7 +227,8 @@ export async function authRoutes(app: FastifyInstance) {
         }
 
         const jwtToken = signToken(user);
-        return reply.redirect(`${WEB_URL}/auth/google/callback?token=${jwtToken}`);
+        const linkedParam = isNewLink ? "&linked=true" : "";
+        return reply.redirect(`${WEB_URL}/auth/google/callback?token=${jwtToken}${linkedParam}`);
       } catch {
         return reply.redirect(`${WEB_URL}/login?error=google_auth_failed`);
       }

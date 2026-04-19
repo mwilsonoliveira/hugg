@@ -20,7 +20,8 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${baseUrl}/login?error=google_auth_failed`);
   }
 
+  const linked = searchParams.get("linked");
   const cookieStore = await cookies();
   cookieStore.set("token", token, COOKIE_OPTIONS);
-  return NextResponse.redirect(`${baseUrl}/`);
+  return NextResponse.redirect(`${baseUrl}/${linked ? "?linked=true" : ""}`);
 }

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import type { PetResponse, PaginatedPets } from "@hugg/schemas";
 import type { SessionUser } from "@/lib/session";
 import { PetCard } from "@/components/pet-card";
@@ -24,6 +26,14 @@ interface HomePageContentProps {
 }
 
 export function HomePageContent({ initialData, user }: HomePageContentProps) {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("linked") === "true") {
+      toast.success("Conta vinculada ao Google com sucesso! Sua foto de perfil foi atualizada.");
+    }
+  }, [searchParams]);
+
   const [pets, setPets] = useState<PetResponse[]>(initialData.data);
   const [total, setTotal] = useState(initialData.total);
   const [search, setSearch] = useState("");

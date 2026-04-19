@@ -11,6 +11,16 @@ import { Eye, EyeOff } from "lucide-react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
+function applyPhoneMask(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 11);
+  if (digits.length === 0) return "";
+  if (digits.length <= 2) return `(${digits}`;
+  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  if (digits.length <= 10)
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+}
+
 interface RegisterFormProps {
   petImages?: [string?, string?, string?];
 }
@@ -100,9 +110,14 @@ export function RegisterForm({ petImages = [] }: RegisterFormProps) {
               </label>
               <input
                 id="phone"
-                type="tel"
-                placeholder="(00) 00000-0000"
-                {...register("phone")}
+                type="text"
+                inputMode="numeric"
+                placeholder="(51) 99999-9999"
+                {...register("phone", {
+                  onChange: (e) => {
+                    e.target.value = applyPhoneMask(e.target.value);
+                  },
+                })}
                 className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
               />
             </div>
