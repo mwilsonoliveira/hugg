@@ -1,5 +1,6 @@
 "use client";
 
+import { Image } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
@@ -11,7 +12,7 @@ interface ImageDropzoneProps {
 
 export function ImageDropzone({ value, onChange, error }: ImageDropzoneProps) {
   const [previews, setPreviews] = useState<{ url: string; dataUrl: string }[]>(
-    value.map((u) => ({ url: u, dataUrl: u }))
+    value.map((u) => ({ url: u, dataUrl: u })),
   );
 
   const onDrop = useCallback(
@@ -29,7 +30,7 @@ export function ImageDropzone({ value, onChange, error }: ImageDropzoneProps) {
         reader.readAsDataURL(file);
       });
     },
-    [onChange]
+    [onChange],
   );
 
   const remove = (index: number) => {
@@ -59,24 +60,18 @@ export function ImageDropzone({ value, onChange, error }: ImageDropzoneProps) {
         }`}
       >
         <input {...getInputProps()} />
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-          stroke="currentColor"
-          className="w-8 h-8 mx-auto mb-2 text-gray-400"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3 15.75V18a2.25 2.25 0 002.25 2.25h13.5A2.25 2.25 0 0021 18v-2.25M16.5 3.75h-9A2.25 2.25 0 005.25 6v12"
-          />
-        </svg>
+        <div className="flex w-full justify-center">
+          <Image className="text-gray-400 mb-2" size={32} />
+        </div>
         <p className="text-sm text-gray-500">
           {isDragActive
             ? "Solte as fotos aqui..."
-            : "Arraste fotos ou clique para selecionar"}
+            : (
+              <>
+                <span className="hidden sm:inline">Arraste fotos ou clique para selecionar</span>
+                <span className="sm:hidden">Toque para anexar imagens</span>
+              </>
+            )}
         </p>
         <p className="text-xs text-gray-400 mt-1">PNG, JPG, WEBP</p>
       </div>

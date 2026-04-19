@@ -93,6 +93,8 @@ export const BREEDS_BY_SPECIES = {
 
 export type Species = keyof typeof BREEDS_BY_SPECIES;
 
+export const genderSchema = z.enum(["MALE", "FEMALE"]);
+
 export const speciesSchema = z.enum(["DOG", "CAT", "BIRD", "RABBIT", "OTHER"], {
   errorMap: () => ({ message: "Espécie é obrigatória" }),
 });
@@ -103,9 +105,10 @@ export const situationSchema = z.enum(["SHELTER", "ABANDONED", "FOSTER", "STREET
 export const adoptionStatusSchema = z.enum(["PENDING", "APPROVED", "REJECTED"]);
 
 const petBaseSchema = z.object({
-  name: z.string().min(1, "Nome é obrigatório"),
+  name: z.string().optional(),
   species: speciesSchema,
   situation: situationSchema,
+  gender: genderSchema.optional(),
   breed: z.string().optional(),
   age: z.coerce
     .number({ invalid_type_error: "Informe um número válido" })
@@ -113,7 +116,7 @@ const petBaseSchema = z.object({
     .min(0, "Idade inválida")
     .optional()
     .or(z.literal(NaN).transform(() => undefined)),
-  description: z.string().min(1, "Descrição é obrigatória"),
+  description: z.string().optional(),
   imageUrls: z.array(z.string()).min(1, "Adicione pelo menos uma foto"),
   waitingSince: z.coerce
     .date({
@@ -124,6 +127,8 @@ const petBaseSchema = z.object({
     .refine((d) => d <= new Date(), { message: "A data não pode ser no futuro" }),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
+  locationNote: z.string().optional(),
+  locationPhone: z.string().optional(),
 });
 
 const SPECIES_WITH_BREEDS = ["DOG", "CAT", "BIRD", "RABBIT"] as const;
@@ -157,14 +162,28 @@ export const petResponseSchema = z.object({
   age: z.number().nullable(),
   description: z.string().nullable(),
   imageUrls: z.array(z.string()),
+  gender: genderSchema.nullable(),
   status: petStatusSchema,
   situation: situationSchema,
   waitingSince: z.coerce.date(),
   latitude: z.number().nullable(),
   longitude: z.number().nullable(),
+  locationNote: z.string().nullable(),
+  locationPhone: z.string().nullable(),
   createdById: z.string(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
+});
+
+export const petWithDistanceSchema = petResponseSchema.extend({
+  distanceKm: z.number(),
+});
+
+export const nearbyPetsQuerySchema = z.object({
+  lat: z.coerce.number(),
+  lng: z.coerce.number(),
+  radius: z.coerce.number().positive().default(50),
+  limit: z.coerce.number().int().positive().max(20).default(10),
 });
 
 export const paginatedPetsSchema = z.object({
@@ -196,6 +215,8 @@ export type UpdatePetInput = z.infer<typeof updatePetSchema>;
 export type ListPetsQuery = z.infer<typeof listPetsQuerySchema>;
 export type PetResponse = z.infer<typeof petResponseSchema>;
 export type PaginatedPets = z.infer<typeof paginatedPetsSchema>;
+export type PetWithDistance = z.infer<typeof petWithDistanceSchema>;
+export type NearbyPetsQuery = z.infer<typeof nearbyPetsQuerySchema>;
 export type CreateAdoptionInput = z.infer<typeof createAdoptionSchema>;
 export type RegisterUserInput = z.infer<typeof registerUserSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;

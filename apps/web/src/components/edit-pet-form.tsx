@@ -5,6 +5,10 @@ import { toast } from "sonner";
 import { type CreatePetInput, type PetResponse } from "@hugg/schemas";
 import { PetForm } from "@/components/pet-form";
 import { updatePetAction } from "@/app/actions/pets";
+import { useUnsavedChanges } from "@/components/unsaved-changes-context";
+import { useUser } from "@/components/user-context";
+import { UserDropdown } from "@/components/user-dropdown";
+import { ArrowLeft } from "@phosphor-icons/react";
 
 interface EditPetFormProps {
   pet: PetResponse;
@@ -12,6 +16,8 @@ interface EditPetFormProps {
 
 export function EditPetForm({ pet }: EditPetFormProps) {
   const router = useRouter();
+  const { requestNavigation } = useUnsavedChanges();
+  const userCtx = useUser();
 
   const onSubmit = async (data: CreatePetInput) => {
     try {
@@ -24,38 +30,46 @@ export function EditPetForm({ pet }: EditPetFormProps) {
   };
 
   return (
-    <>
-      <div className="mb-8 flex items-center gap-3">
-        <button
-          onClick={() => router.back()}
-          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-gray-600">
-            <path fillRule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clipRule="evenodd" />
-          </svg>
-        </button>
-        <div>
-          <h1 className="text-xl font-bold text-gray-900">Editar pet</h1>
-          <p className="text-sm text-gray-500">Atualize os dados de {pet.name}.</p>
+    <main className="min-h-screen bg-gray-50">
+      <div className="sticky top-0 z-10 bg-gray-50/95 backdrop-blur-sm border-b border-gray-100">
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
+          <button
+            onClick={() => requestNavigation(() => router.back())}
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors shrink-0"
+          >
+            <ArrowLeft size={20} className="text-gray-600" />
+          </button>
+          <div className="flex-1">
+            <h1 className="text-base font-bold text-gray-900 leading-tight">Editar pet</h1>
+            <p className="text-xs text-gray-500">Atualize os dados de {pet.name}.</p>
+          </div>
+          {userCtx && <UserDropdown user={userCtx.user} />}
         </div>
       </div>
 
-      <PetForm
-        key={pet.id}
-        defaultValues={{
-          name: pet.name,
-          species: pet.species,
-          situation: pet.situation,
-          breed: pet.breed ?? undefined,
-          age: pet.age ?? undefined,
-          description: pet.description ?? undefined,
-          imageUrls: pet.imageUrls,
-          waitingSince: pet.waitingSince,
-        }}
-        onSubmit={onSubmit}
-        submitLabel="Salvar alterações"
-        submittingLabel="Salvando..."
-      />
-    </>
+      <div className="max-w-2xl mx-auto px-4 py-6 pb-28 sm:pb-8">
+        <PetForm
+          key={pet.id}
+          defaultValues={{
+            name: pet.name ?? undefined,
+            species: pet.species,
+            situation: pet.situation,
+            gender: pet.gender ?? undefined,
+            breed: pet.breed ?? undefined,
+            age: pet.age ?? undefined,
+            description: pet.description ?? undefined,
+            imageUrls: pet.imageUrls,
+            waitingSince: pet.waitingSince,
+            latitude: pet.latitude ?? undefined,
+            longitude: pet.longitude ?? undefined,
+            locationNote: pet.locationNote ?? undefined,
+            locationPhone: pet.locationPhone ?? undefined,
+          }}
+          onSubmit={onSubmit}
+          submitLabel="Salvar alterações"
+          submittingLabel="Salvando..."
+        />
+      </div>
+    </main>
   );
 }

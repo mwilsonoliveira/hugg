@@ -11,6 +11,9 @@ import {
 } from "@hugg/schemas";
 import { ImageDropzone } from "@/components/image-dropzone";
 import { BreedCombobox } from "@/components/breed-combobox";
+import { LocationPicker } from "@/components/location-picker";
+import { useUnsavedChanges } from "@/components/unsaved-changes-context";
+import { Shuffle } from "lucide-react";
 
 const SPECIES_OPTIONS = [
   { value: "DOG", label: "Cachorro" },
@@ -21,11 +24,32 @@ const SPECIES_OPTIONS = [
 ];
 
 const SITUATION_OPTIONS = [
-  { value: "SHELTER", label: "Em abrigo" },
   { value: "ABANDONED", label: "Abandonado" },
+  { value: "SHELTER", label: "Em abrigo" },
   { value: "FOSTER", label: "Em lar temporário" },
   { value: "STREET", label: "Na rua" },
 ];
+
+const GENDER_OPTIONS = [
+  { value: "MALE", label: "Macho" },
+  { value: "FEMALE", label: "Fêmea" },
+];
+
+const PET_NAMES = [
+  "Amendoim", "Biscoito", "Caramelo", "Docinho", "Farofa",
+  "Gelatina", "Linguiça", "Mortadela", "Paçoca", "Rapadura",
+  "Tapioca", "Açaí", "Brigadeiro", "Canjica", "Goiabada",
+  "Tucupi", "Cuscuz", "Bolinho", "Coxinha", "Pipoca",
+  "Pudim", "Torta", "Sonho", "Trovão", "Relâmpago",
+  "Neblina", "Bruma", "Ventania", "Chuvisco", "Garoa",
+  "Granizo", "Batatinha", "Cebolinha", "Manjericão",
+  "Alecrim", "Coentro", "Pimenta", "Sálvia", "Orégano",
+  "Pindoca", "Quirela", "Farinha", "Pamonha", "Canjiquinha",
+];
+
+function randomPetName(): string {
+  return PET_NAMES[Math.floor(Math.random() * PET_NAMES.length)]!;
+}
 
 interface PetFormProps {
   defaultValues?: Partial<CreatePetInput>;
@@ -45,7 +69,7 @@ export function PetForm({
     handleSubmit,
     control,
     setValue,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<CreatePetInput>({
     resolver: zodResolver(createPetSchema),
     defaultValues,
@@ -53,9 +77,13 @@ export function PetForm({
 
   const selectedSpecies = useWatch({ control, name: "species" }) as Species | "";
   const selectedBreed = useWatch({ control, name: "breed" }) as string | undefined;
+  const selectedSituation = useWatch({ control, name: "situation" }) as string | "";
   const mixedBreed = selectedBreed === SRD_LABEL;
 
-  // Limpa a raça apenas quando a espécie realmente muda (não no mount inicial)
+  const { setIsDirty } = useUnsavedChanges();
+  useEffect(() => { setIsDirty(isDirty); }, [isDirty, setIsDirty]);
+  useEffect(() => () => { setIsDirty(false); }, [setIsDirty]);
+
   const prevSpeciesRef = useRef<string | undefined>(defaultValues?.species);
   useEffect(() => {
     if (selectedSpecies === prevSpeciesRef.current) return;
@@ -96,17 +124,69 @@ export function PetForm({
         />
       </div>
 
+      {/* Localização — logo após fotos */}
+      <Controller
+        name="latitude"
+        control={control}
+        render={({ field: latField }) => (
+          <Controller
+            name="longitude"
+            control={control}
+            render={({ field: lngField }) => (
+              <Controller
+                name="locationNote"
+                control={control}
+                render={({ field: noteField }) => (
+                  <Controller
+                    name="locationPhone"
+                    control={control}
+                    render={({ field: phoneField }) => (
+                      <LocationPicker
+                        latitude={latField.value as number | undefined}
+                        longitude={lngField.value as number | undefined}
+                        locationNote={noteField.value as string | undefined}
+                        locationPhone={phoneField.value as string | undefined}
+                        onLocationChange={(lat, lng) => {
+                          latField.onChange(lat);
+                          lngField.onChange(lng);
+                        }}
+                        onLocationNoteChange={noteField.onChange}
+                        onLocationPhoneChange={phoneField.onChange}
+                        onClear={() => {
+                          latField.onChange(undefined);
+                          lngField.onChange(undefined);
+                          noteField.onChange(undefined);
+                          phoneField.onChange(undefined);
+                        }}
+                      />
+                    )}
+                  />
+                )}
+              />
+            )}
+          />
+        )}
+      />
+
       {/* Informações básicas */}
       <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col gap-4">
-        <h2 className="text-sm font-semibold text-gray-700">
-          Informações básicas
-        </h2>
+        <h2 className="text-sm font-semibold text-gray-700">Informações básicas</h2>
 
-        {/* Nome */}
+        {/* Nome + randomizer */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">
-            Nome <span className="text-red-500">*</span>
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium text-gray-700">Nome</label>
+            <button
+              type="button"
+              onClick={() =>
+                setValue("name", randomPetName(), { shouldDirty: true, shouldValidate: true })
+              }
+              className="flex items-center gap-1 text-xs text-orange-500 hover:text-orange-600 transition-colors"
+            >
+              <Shuffle className="w-3 h-3" />
+              Invente um nome
+            </button>
+          </div>
           <input
             {...register("name")}
             placeholder="Ex: Bolinha"
@@ -118,7 +198,7 @@ export function PetForm({
         </div>
 
         {/* Espécie + Raça */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">
               Espécie <span className="text-red-500">*</span>
@@ -129,9 +209,7 @@ export function PetForm({
             >
               <option value="">Selecione</option>
               {SPECIES_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
+                <option key={o.value} value={o.value}>{o.label}</option>
               ))}
             </select>
             {errors.species && (
@@ -164,8 +242,8 @@ export function PetForm({
           </div>
         </div>
 
-        {/* Situação + Idade */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Situação + Idade + Sexo */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">
               Situação <span className="text-red-500">*</span>
@@ -176,9 +254,7 @@ export function PetForm({
             >
               <option value="">Selecione</option>
               {SITUATION_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
+                <option key={o.value} value={o.value}>{o.label}</option>
               ))}
             </select>
             {errors.situation && (
@@ -187,9 +263,7 @@ export function PetForm({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">
-              Idade (anos)
-            </label>
+            <label className="text-sm font-medium text-gray-700">Idade (anos)</label>
             <input
               {...register("age", { valueAsNumber: true })}
               type="number"
@@ -200,6 +274,19 @@ export function PetForm({
             {errors.age && (
               <p className="text-xs text-red-500">{errors.age.message}</p>
             )}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-700">Sexo</label>
+            <select
+              {...register("gender")}
+              className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
+            >
+              <option value="">Não informado</option>
+              {GENDER_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -215,7 +302,9 @@ export function PetForm({
               <input
                 type="date"
                 value={field.value ? toDateInputValue(field.value) : ""}
-                onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value + "T00:00:00") : null)}
+                onChange={(e) =>
+                  field.onChange(e.target.value ? new Date(e.target.value + "T00:00:00") : null)
+                }
                 onBlur={field.onBlur}
                 max={new Date().toISOString().split("T")[0]}
                 className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
@@ -229,18 +318,13 @@ export function PetForm({
 
         {/* Descrição */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">
-            Descrição <span className="text-red-500">*</span>
-          </label>
+          <label className="text-sm font-medium text-gray-700">Descrição</label>
           <textarea
             {...register("description")}
             rows={3}
             placeholder="Conte um pouco sobre o animal..."
             className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent resize-none"
           />
-          {errors.description && (
-            <p className="text-xs text-red-500">{errors.description.message}</p>
-          )}
         </div>
       </div>
 
@@ -257,19 +341,8 @@ export function PetForm({
             fill="none"
             viewBox="0 0 24 24"
           >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v8H4z"
-            />
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
           </svg>
         )}
         {isSubmitting ? submittingLabel : submitLabel}

@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { prisma } from "../lib/prisma";
-import { listPetsQuerySchema, createPetSchema, updatePetSchema } from "@hugg/schemas";
+import { listPetsQuerySchema, createPetSchema, updatePetSchema, nearbyPetsQuerySchema } from "@hugg/schemas";
+import { getDistanceKm } from "@hugg/utils";
 
 export async function petsRoutes(app: FastifyInstance) {
   app.get("/pets", async (request, reply) => {
@@ -55,6 +56,30 @@ export async function petsRoutes(app: FastifyInstance) {
     ]);
 
     return reply.send({ data, total, page, limit });
+  });
+
+  app.get("/pets/nearby", async (request, reply) => {
+    const query = nearbyPetsQuerySchema.safeParse(request.query);
+    if (!query.success) {
+      return reply.status(400).send({ error: query.error.flatten() });
+    }
+
+    const { lat, lng, radius, limit } = query.data;
+
+    const petsWithLocation = await prisma.pet.findMany({
+      where: { latitude: { not: null }, longitude: { not: null } },
+    });
+
+    const nearby = petsWithLocation
+      .map((pet) => ({
+        ...pet,
+        distanceKm: getDistanceKm(lat, lng, pet.latitude!, pet.longitude!),
+      }))
+      .filter((p) => p.distanceKm <= radius)
+      .sort((a, b) => a.distanceKm - b.distanceKm)
+      .slice(0, limit);
+
+    return reply.send(nearby);
   });
 
   app.get("/pets/:id", async (request, reply) => {

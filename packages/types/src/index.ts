@@ -1,6 +1,7 @@
 export type Species = "DOG" | "CAT" | "BIRD" | "RABBIT" | "OTHER";
 export type PetStatus = "AVAILABLE" | "UNDER_REVIEW" | "ADOPTED";
 export type Situation = "SHELTER" | "ABANDONED" | "FOSTER" | "STREET";
+export type Gender = "MALE" | "FEMALE";
 export type AdoptionStatus = "PENDING" | "APPROVED" | "REJECTED";
 
 export interface User {
@@ -15,7 +16,8 @@ export interface User {
 
 export interface Pet {
   id: string;
-  name: string;
+  name?: string;
+  gender?: Gender;
   species: Species;
   breed?: string;
   age?: number;
@@ -26,6 +28,8 @@ export interface Pet {
   waitingSince: Date;
   latitude?: number;
   longitude?: number;
+  locationNote?: string;
+  locationPhone?: string;
   createdById: string;
   createdAt: Date;
   updatedAt: Date;
