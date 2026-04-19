@@ -25,11 +25,8 @@ export function LoginForm({ petImages = [] }: LoginFormProps) {
 
   const onSubmit = async (data: LoginInput) => {
     setError(null);
-    try {
-      await loginAction(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao fazer login");
-    }
+    const result = await loginAction(data);
+    if (result?.error) setError(result.error);
   };
 
   return (

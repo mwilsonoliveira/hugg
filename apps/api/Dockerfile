@@ -33,4 +33,4 @@ RUN pnpm --filter @hugg/api build
 
 EXPOSE 3001
 
-CMD ["node", "apps/api/dist/index.js"]
+CMD ["pnpm", "--filter", "@hugg/api", "run", "start:prod"]
