@@ -3,20 +3,19 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema, type LoginInput } from "@hugg/schemas";
-import { loginAction } from "@/app/actions/auth";
+import { registerUserSchema, type RegisterUserInput } from "@hugg/schemas";
+import { registerAction } from "@/app/actions/auth";
 import { FaPaw } from "react-icons/fa";
-import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
-interface LoginFormProps {
+interface RegisterFormProps {
   petImages?: [string?, string?, string?];
-  googleError?: boolean;
 }
 
-export function LoginForm({ petImages = [], googleError }: LoginFormProps) {
+export function RegisterForm({ petImages = [] }: RegisterFormProps) {
   const [leftUrl, centerUrl, rightUrl] = petImages;
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -25,13 +24,13 @@ export function LoginForm({ petImages = [], googleError }: LoginFormProps) {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<RegisterUserInput>({
+    resolver: zodResolver(registerUserSchema),
   });
 
-  const onSubmit = async (data: LoginInput) => {
+  const onSubmit = async (data: RegisterUserInput) => {
     setError(null);
-    const result = await loginAction(data);
+    const result = await registerAction(data);
     if (result?.error) setError(result.error);
   };
 
@@ -42,28 +41,17 @@ export function LoginForm({ petImages = [], googleError }: LoginFormProps) {
           <div className="flex justify-center items-end mb-[-2.5rem]">
             <div className={`relative z-0 translate-x-5 transition-opacity ${leftUrl ? "opacity-100" : "opacity-0"}`}>
               <div className="w-14 h-14 rounded-full border-4 border-white shadow-sm overflow-hidden bg-gray-100">
-                {leftUrl && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={leftUrl} alt="Pet" className="w-full h-full object-cover" />
-                )}
+                {leftUrl && <img src={leftUrl} alt="Pet" className="w-full h-full object-cover" />}
               </div>
             </div>
-
             <div className="relative z-10">
               <div className="w-20 h-20 rounded-full border-4 border-white shadow-md overflow-hidden bg-gray-100">
-                {centerUrl && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={centerUrl} alt="Pet" className="w-full h-full object-cover" />
-                )}
+                {centerUrl && <img src={centerUrl} alt="Pet" className="w-full h-full object-cover" />}
               </div>
             </div>
-
             <div className={`relative z-0 -translate-x-5 transition-opacity ${rightUrl ? "opacity-100" : "opacity-0"}`}>
               <div className="w-14 h-14 rounded-full border-4 border-white shadow-sm overflow-hidden bg-gray-100">
-                {rightUrl && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={rightUrl} alt="Pet" className="w-full h-full object-cover" />
-                )}
+                {rightUrl && <img src={rightUrl} alt="Pet" className="w-full h-full object-cover" />}
               </div>
             </div>
           </div>
@@ -74,16 +62,24 @@ export function LoginForm({ petImages = [], googleError }: LoginFormProps) {
             <h1 className="text-2xl font-bold text-gray-900 flex items-center justify-center gap-1.5">
               hugg <FaPaw className="w-5 h-5 -rotate-6 text-orange-500" />
             </h1>
-            <p className="text-sm text-gray-500 mt-1">Entre na sua conta para continuar.</p>
+            <p className="text-sm text-gray-500 mt-1">Crie sua conta e encontre um novo amigo.</p>
           </div>
 
-          {googleError && (
-            <p className="mb-4 text-sm text-red-500 text-center bg-red-50 py-2 rounded-lg">
-              Não foi possível autenticar com o Google. Tente novamente.
-            </p>
-          )}
-
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="name" className="text-sm font-medium text-gray-700">
+                Nome completo
+              </label>
+              <input
+                id="name"
+                type="text"
+                placeholder="Seu nome"
+                {...register("name")}
+                className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+              />
+              {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
+            </div>
+
             <div className="flex flex-col gap-1.5">
               <label htmlFor="email" className="text-sm font-medium text-gray-700">
                 E-mail
@@ -95,9 +91,20 @@ export function LoginForm({ petImages = [], googleError }: LoginFormProps) {
                 {...register("email")}
                 className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
               />
-              {errors.email && (
-                <p className="text-xs text-red-500">{errors.email.message}</p>
-              )}
+              {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="phone" className="text-sm font-medium text-gray-700">
+                Telefone <span className="text-gray-400 font-normal">(opcional)</span>
+              </label>
+              <input
+                id="phone"
+                type="tel"
+                placeholder="(00) 00000-0000"
+                {...register("phone")}
+                className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+              />
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -108,7 +115,7 @@ export function LoginForm({ petImages = [], googleError }: LoginFormProps) {
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
+                  placeholder="Mínimo 8 caracteres"
                   {...register("password")}
                   className="w-full px-3 py-2 pr-10 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
                 />
@@ -121,14 +128,10 @@ export function LoginForm({ petImages = [], googleError }: LoginFormProps) {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              {errors.password && (
-                <p className="text-xs text-red-500">{errors.password.message}</p>
-              )}
+              {errors.password && <p className="text-xs text-red-500">{errors.password.message}</p>}
             </div>
 
-            {error && (
-              <p className="text-sm text-red-500 text-center">{error}</p>
-            )}
+            {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
             <button
               type="submit"
@@ -141,10 +144,10 @@ export function LoginForm({ petImages = [], googleError }: LoginFormProps) {
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                 </svg>
               )}
-              {isSubmitting ? "Entrando..." : "Entrar"}
+              {isSubmitting ? "Criando conta..." : "Criar conta"}
             </button>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 my-1">
               <div className="flex-1 h-px bg-gray-200" />
               <span className="text-xs text-gray-400">ou</span>
               <div className="flex-1 h-px bg-gray-200" />
@@ -165,9 +168,9 @@ export function LoginForm({ petImages = [], googleError }: LoginFormProps) {
           </form>
 
           <p className="mt-6 text-center text-xs text-gray-400">
-            Ainda não tem conta?{" "}
-            <Link href="/register" className="text-orange-500 hover:underline">
-              Criar conta
+            Já tem uma conta?{" "}
+            <Link href="/login" className="text-orange-500 hover:underline">
+              Entrar
             </Link>
           </p>
         </div>

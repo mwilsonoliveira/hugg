@@ -205,6 +205,11 @@ export const registerUserSchema = z.object({
   phone: z.string().optional(),
 });
 
+export const verifyOtpSchema = z.object({
+  email: z.string().email("E-mail inválido"),
+  code: z.string().length(6, "O código deve ter 6 dígitos"),
+});
+
 export const loginSchema = z.object({
   email: z.string().email("E-mail inválido"),
   password: z.string().min(1, "Senha é obrigatória"),
@@ -220,3 +225,4 @@ export type NearbyPetsQuery = z.infer<typeof nearbyPetsQuerySchema>;
 export type CreateAdoptionInput = z.infer<typeof createAdoptionSchema>;
 export type RegisterUserInput = z.infer<typeof registerUserSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>;

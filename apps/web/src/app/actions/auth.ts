@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import type { LoginInput, RegisterUserInput } from "@hugg/schemas";
+import type { LoginInput, RegisterUserInput, VerifyOtpInput } from "@hugg/schemas";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -54,10 +54,55 @@ export async function registerAction(data: RegisterUserInput): Promise<{ error: 
     return { error: err.error ?? "Erro ao criar conta" };
   }
 
+  const { email } = await res.json();
+  redirect(`/verify-email?email=${encodeURIComponent(email)}`);
+}
+
+export async function verifyOtpAction(data: VerifyOtpInput): Promise<{ error: string } | never> {
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}/api/auth/verify-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+  } catch {
+    return { error: "Não foi possível conectar ao servidor. Tente novamente." };
+  }
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    return { error: err.error ?? "Código inválido" };
+  }
+
   const { token } = await res.json();
   const cookieStore = await cookies();
   cookieStore.set("token", token, COOKIE_OPTIONS);
   redirect("/");
+}
+
+export async function resendOtpAction(email: string): Promise<{ error?: string; message?: string }> {
+  try {
+    const res = await fetch(`${API_URL}/api/auth/resend-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      return { error: err.error ?? "Erro ao reenviar código" };
+    }
+
+    return { message: "Código reenviado com sucesso" };
+  } catch {
+    return { error: "Não foi possível conectar ao servidor." };
+  }
+}
+
+export async function setTokenFromGoogleAction(token: string): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.set("token", token, COOKIE_OPTIONS);
 }
 
 export async function logoutAction() {

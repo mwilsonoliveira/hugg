@@ -1,11 +1,7 @@
 import { getPets } from "@/lib/api";
-import { LoginForm } from "./login-form";
+import { RegisterForm } from "./register-form";
 
-interface Props {
-  searchParams: { error?: string };
-}
-
-export default async function LoginPage({ searchParams }: Props) {
+export default async function RegisterPage() {
   let petImages: [string?, string?, string?] = [];
 
   try {
@@ -23,5 +19,5 @@ export default async function LoginPage({ searchParams }: Props) {
     // sem imagens se a API não responder
   }
 
-  return <LoginForm petImages={petImages} googleError={searchParams.error === "google_auth_failed"} />;
+  return <RegisterForm petImages={petImages} />;
 }
