@@ -29,7 +29,7 @@ export async function loginAction(data: LoginInput) {
   const { token } = await res.json();
   const cookieStore = await cookies();
   cookieStore.set("token", token, COOKIE_OPTIONS);
-  redirect("/home");
+  redirect("/");
 }
 
 export async function registerAction(data: RegisterUserInput) {
@@ -47,7 +47,7 @@ export async function registerAction(data: RegisterUserInput) {
   const { token } = await res.json();
   const cookieStore = await cookies();
   cookieStore.set("token", token, COOKIE_OPTIONS);
-  redirect("/home");
+  redirect("/");
 }
 
 export async function logoutAction() {

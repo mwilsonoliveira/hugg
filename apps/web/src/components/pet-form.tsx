@@ -12,6 +12,7 @@ import {
 import { ImageDropzone } from "@/components/image-dropzone";
 import { BreedCombobox } from "@/components/breed-combobox";
 import { LocationPicker } from "@/components/location-picker";
+import { useUnsavedChanges } from "@/components/unsaved-changes-context";
 import { Shuffle } from "lucide-react";
 
 const SPECIES_OPTIONS = [
@@ -68,7 +69,7 @@ export function PetForm({
     handleSubmit,
     control,
     setValue,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<CreatePetInput>({
     resolver: zodResolver(createPetSchema),
     defaultValues,
@@ -78,6 +79,10 @@ export function PetForm({
   const selectedBreed = useWatch({ control, name: "breed" }) as string | undefined;
   const selectedSituation = useWatch({ control, name: "situation" }) as string | "";
   const mixedBreed = selectedBreed === SRD_LABEL;
+
+  const { setIsDirty } = useUnsavedChanges();
+  useEffect(() => { setIsDirty(isDirty); }, [isDirty, setIsDirty]);
+  useEffect(() => () => { setIsDirty(false); }, [setIsDirty]);
 
   const prevSpeciesRef = useRef<string | undefined>(defaultValues?.species);
   useEffect(() => {
@@ -193,7 +198,7 @@ export function PetForm({
         </div>
 
         {/* Espécie + Raça */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">
               Espécie <span className="text-red-500">*</span>
@@ -238,7 +243,7 @@ export function PetForm({
         </div>
 
         {/* Situação + Idade + Sexo */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">
               Situação <span className="text-red-500">*</span>

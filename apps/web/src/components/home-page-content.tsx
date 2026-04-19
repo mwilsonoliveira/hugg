@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { PetResponse, PaginatedPets } from "@hugg/schemas";
 import type { SessionUser } from "@/lib/session";
 import { PetCard } from "@/components/pet-card";
@@ -8,12 +8,13 @@ import { PetCardSkeleton } from "@/components/pet-card-skeleton";
 import { PetFilters } from "@/components/pet-filters";
 import { UserDropdown } from "@/components/user-dropdown";
 import { HuggLogo } from "@/components/hugg-logo";
+import { MobileBottomNav } from "@/components/mobile-bottom-nav";
 import { getPets, getNearbyPets, recordSearch } from "@/lib/api";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useUserLocation } from "@/hooks/use-user-location";
 import { NearbyPetsSection } from "@/components/nearby-pets-section";
 import type { PetWithDistance } from "@hugg/schemas";
-import { Heart } from "lucide-react";
+import { Heart, X, Search } from "lucide-react";
 
 const PAGE_SIZE = 12;
 
@@ -32,6 +33,8 @@ export function HomePageContent({ initialData, user }: HomePageContentProps) {
   const [loadingMore, setLoadingMore] = useState(false);
   const [nearbyPets, setNearbyPets] = useState<PetWithDistance[]>([]);
   const [nearbyLoading, setNearbyLoading] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const mobileSearchRef = useRef<HTMLInputElement>(null);
 
   const { location, status: locationStatus } = useUserLocation();
   const debouncedSearch = useDebounce(search, 500);
@@ -103,6 +106,13 @@ export function HomePageContent({ initialData, user }: HomePageContentProps) {
 
   const hasMore = pets.length < total;
 
+  const handleMobileSearchToggle = () => {
+    setMobileSearchOpen((prev) => {
+      if (!prev) setTimeout(() => mobileSearchRef.current?.focus(), 50);
+      return !prev;
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Sticky header */}
@@ -124,8 +134,8 @@ export function HomePageContent({ initialData, user }: HomePageContentProps) {
             <UserDropdown user={user} />
           </div>
 
-          {/* Filters row */}
-          <div className="pb-3">
+          {/* Filters row — desktop only */}
+          <div className="hidden sm:block pb-3">
             <PetFilters
               search={search}
               onSearchChange={setSearch}
@@ -136,6 +146,42 @@ export function HomePageContent({ initialData, user }: HomePageContentProps) {
         </div>
       </div>
 
+      {/* Mobile search overlay */}
+      {mobileSearchOpen && (
+        <div
+          className="sm:hidden fixed inset-0 z-40 bg-black/40"
+          onClick={() => setMobileSearchOpen(false)}
+        >
+          <div
+            className="bg-white px-4 pt-4 pb-5 shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <p className="text-sm font-semibold text-gray-700 flex-1">
+                Buscar pet
+              </p>
+              <button
+                onClick={() => setMobileSearchOpen(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                ref={mobileSearchRef}
+                type="text"
+                placeholder="Buscar por nome ou raça..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Animais próximos */}
       {(nearbyLoading || nearbyPets.length > 0) && (
         <div className="max-w-7xl mx-auto px-4 pt-6">
@@ -144,7 +190,7 @@ export function HomePageContent({ initialData, user }: HomePageContentProps) {
       )}
 
       {/* Grid principal */}
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4 py-6 pb-24 sm:pb-6">
         {nearbyPets.length > 0 && !loading && (
           <div className="flex items-center gap-2 mb-3">
             <Heart className="w-4 h-4 text-orange-500" />
@@ -187,6 +233,11 @@ export function HomePageContent({ initialData, user }: HomePageContentProps) {
           </div>
         )}
       </div>
+
+      <MobileBottomNav
+        onSearchToggle={handleMobileSearchToggle}
+        searchOpen={mobileSearchOpen}
+      />
     </div>
   );
 }
