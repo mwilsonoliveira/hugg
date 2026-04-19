@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Clock } from "lucide-react";
+import { Buildings } from "@phosphor-icons/react";
 import { getSearchHistory } from "@/lib/api";
 
 interface PetFiltersProps {
@@ -37,7 +38,10 @@ export function PetFilters({
   // Fecha o dropdown ao clicar fora
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         setFocused(false);
       }
     };
@@ -62,6 +66,15 @@ export function PetFilters({
         Achei um pet!
       </Link>
 
+      {/* Abrigos */}
+      <Link
+        href="/shelters"
+        className="shrink-0 flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors"
+      >
+        <Buildings size={16} />
+        Abrigos
+      </Link>
+
       {/* Campo de busca com histórico */}
       <div className="relative flex-1" ref={containerRef}>
         <svg
@@ -72,7 +85,11 @@ export function PetFilters({
           stroke="currentColor"
           className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+          />
         </svg>
         <input
           type="text"
@@ -92,7 +109,10 @@ export function PetFilters({
             {history.map((query) => (
               <button
                 key={query}
-                onMouseDown={(e) => { e.preventDefault(); handleSelect(query); }}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  handleSelect(query);
+                }}
                 className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-700 transition-colors text-left"
               >
                 <Clock className="w-3.5 h-3.5 text-gray-400 shrink-0" />
@@ -122,7 +142,11 @@ export function PetFilters({
           fill="currentColor"
           className="w-4 h-4 absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
         >
-          <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+          <path
+            fillRule="evenodd"
+            d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+            clipRule="evenodd"
+          />
         </svg>
       </div>
     </div>
