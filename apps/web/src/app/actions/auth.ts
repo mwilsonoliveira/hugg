@@ -15,11 +15,16 @@ const COOKIE_OPTIONS = {
 };
 
 export async function loginAction(data: LoginInput) {
-  const res = await fetch(`${API_URL}/api/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+  } catch {
+    throw new Error("Não foi possível conectar ao servidor. Tente novamente.");
+  }
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -33,11 +38,16 @@ export async function loginAction(data: LoginInput) {
 }
 
 export async function registerAction(data: RegisterUserInput) {
-  const res = await fetch(`${API_URL}/api/auth/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}/api/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+  } catch {
+    throw new Error("Não foi possível conectar ao servidor. Tente novamente.");
+  }
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
