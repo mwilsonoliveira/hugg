@@ -75,7 +75,7 @@ export function UserProvider({
             </button>
           </div>
 
-          <div className="flex flex-col items-center justify-center flex-1 gap-6 px-8 -mt-12">
+          <div className="flex flex-col items-center justify-start flex-1 gap-6 px-8 -mt-12">
             <div className="w-20 h-20 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-3xl">
               {initials}
             </div>
