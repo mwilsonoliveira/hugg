@@ -7,6 +7,8 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",
+    "sdd:check": "node scripts/sdd-check.mjs",
+    "sdd:test": "node --test scripts/sdd-check.test.mjs",
     "clean": "turbo run clean && rm -rf node_modules",
     "db:up": "bash scripts/dev-up.sh",
     "db:down": "docker compose down"
