@@ -69,6 +69,8 @@ pnpm dev
 | `pnpm build` | Build de todas as apps |
 | `pnpm lint` | Lint em todos os pacotes |
 | `pnpm type-check` | Type check em todos os pacotes |
+| `pnpm sdd:check` | Valida a estrutura e a rastreabilidade das specs |
+| `pnpm sdd:test` | Executa os testes do validador SDD |
 
 ### Comandos da API
 
@@ -110,3 +112,20 @@ hugg/
 | Mobile | Expo SDK 54, Expo Router, NativeWind |
 | API | Fastify, Prisma v7, Better Auth, BullMQ |
 | Banco | PostgreSQL + PostGIS, Redis |
+
+---
+
+## Spec-Driven Development
+
+Mudanças no Hugg são guiadas por especificações versionadas. Antes de alterar o código, leia [`AGENTS.md`](AGENTS.md) e a [constituição do projeto](.specify/memory/constitution.md).
+
+O fluxo padrão é:
+
+```text
+constitution → spec → plan → tasks → implement → validate
+```
+
+- Features, contratos, dados, segurança e arquitetura usam o track `standard` completo.
+- Documentação e correções triviais sem alteração de contrato podem usar o track `fast`.
+- Cada mudança vive em `specs/NNN-kebab-case/`; consulte [`specs/README.md`](specs/README.md) e os templates em [`.specify/templates/`](.specify/templates/).
+- Execute `pnpm sdd:check` antes de concluir uma mudança.
