@@ -11,9 +11,8 @@
 ## Regras e riscos
 
 - O fallback `hugg-jwt-secret-dev` só é aceitável no desenvolvimento local.
-- O middleware web verifica expiração, mas não assinatura; decisões de autorização devem ocorrer na API.
-- Ainda não há middleware Fastify reutilizável nem autorização por proprietário nos endpoints de pets.
-- Better Auth está listado como dependência/direção, porém não controla o fluxo atual.
+- A sessão do servidor verifica assinatura, expiração e existência do usuário no banco.
+- Route Handlers aceitam cookie HTTP-only ou Bearer; mutações exigem autenticação.
+- Somente o usuário registrado em `createdById` pode editar um pet; os demais recebem `403`.
 
 Qualquer troca de mecanismo de sessão, exposição de perfil, recuperação de senha, papéis ou autorização exige spec `standard` e estratégia de compatibilidade.
-

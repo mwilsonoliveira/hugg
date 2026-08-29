@@ -1,4 +1,4 @@
-import { getPets } from "@/lib/api";
+import { listPets as getPets } from "@/server/pets";
 import { getCurrentUser } from "@/lib/session";
 import { HomePageContent } from "@/components/home-page-content";
 import { redirect } from "next/navigation";

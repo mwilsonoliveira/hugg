@@ -1,8 +1,0 @@
-[build]
-buildCommand = "pnpm install --frozen-lockfile && pnpm --filter @hugg/schemas build && pnpm --filter @hugg/utils build && pnpm --filter @hugg/types build && pnpm --filter @hugg/api db:generate && pnpm --filter @hugg/api build"
-installCommand = "echo 'skip'"
-
-[deploy]
-startCommand = "node apps/api/dist/index.js"
-healthcheckPath = "/health"
-healthcheckTimeout = 60

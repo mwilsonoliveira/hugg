@@ -6,7 +6,8 @@ O Hugg é um monorepo pnpm/Turborepo:
 
 - `apps/web`: Next.js 14 App Router, React 18 e Tailwind.
 - `apps/mobile`: Expo SDK 54, Expo Router e NativeWind; atualmente um scaffold.
-- `apps/api`: Fastify 4, Prisma 7 e PostgreSQL.
+- `apps/web/src/app/api`: Route Handlers que executam junto do Next na Vercel.
+- `packages/database`: Prisma 7, adaptador libSQL, schema SQLite e migrations Turso.
 - `packages/schemas`: validações e contratos Zod.
 - `packages/types`: tipos TypeScript globais.
 - `packages/utils`: utilitários compartilhados.
@@ -15,11 +16,11 @@ O Hugg é um monorepo pnpm/Turborepo:
 
 ## Fluxo de dados
 
-Web e, futuramente, mobile consomem a API REST. A API valida parte das entradas com Zod e persiste via Prisma/PostgreSQL. Redis, BullMQ e WebSocket estão declarados ou planejados, mas não participam dos fluxos atuais.
+O navegador consome a API REST same-origin. Server Components e Server Actions chamam serviços diretamente, sem HTTP interno. Entradas são validadas com Zod e persistidas via Prisma/libSQL; fotos públicas ficam no Vercel Blob.
 
 ## Contratos HTTP observados
 
-- Saúde: `GET /health`.
+- Saúde: `GET /health` (e alias `GET /api/health`).
 - Identidade: `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`.
 - Pets: `GET /api/pets`, `GET /api/pets/nearby`, `GET /api/pets/:id`, `POST /api/pets`, `PATCH /api/pets/:id`.
 - Raças: `GET /api/breeds`.
@@ -29,20 +30,18 @@ Não existe hoje um contrato OpenAPI versionado. Quando uma feature alterar ou a
 
 ## Persistência
 
-Os modelos Prisma são `User`, `Pet`, `SearchHistory` e `Adoption`. O PostgreSQL local usa imagem com PostGIS, mas latitude e longitude são `Float` e a proximidade é calculada na aplicação. Redis sobe no Docker Compose, porém não é consumido pelo código observado.
+Os modelos Prisma são `User`, `Pet`, `SearchHistory` e `Adoption`. Produção e preview usam bancos Turso separados; desenvolvimento usa SQLite local. `Pet.imageUrls` é JSON internamente e `string[]` no contrato. A proximidade continua calculada na aplicação.
 
 ## Autenticação e autorização
 
-A API cria hashes bcrypt e tokens JWT com validade de sete dias. A web armazena o token em cookie HTTP-only e protege rotas pelo middleware. O endpoint de criação de pet não usa a identidade do token: associa o primeiro usuário encontrado. Endpoints de edição também não verificam propriedade. Essas limitações são dívidas atuais, não padrões a reproduzir.
+A aplicação cria hashes bcrypt e tokens JWT com validade de sete dias. A web usa cookie HTTP-only e a API também aceita Bearer. Criação exige autenticação e associa o usuário real; edição exige que o usuário seja o autor do pet.
 
 ## Deploy e operação
 
-Há configurações para Vercel e Railway, Docker para API e workflows GitHub de deploy/migration. Os comandos de desenvolvimento canônicos ficam no `README.md`. Variáveis de ambiente e comportamento de produção devem ser confirmados nos manifests antes de qualquer mudança operacional.
+Web e API são um único deployment Vercel. Migrations Turso são aplicadas fora das requisições por um runner versionado. Railway e as migrations PostgreSQL permanecem somente como origem/arquivo para o cutover descrito em `docs/deployment.md`.
 
 ## Divergências documentais conhecidas
 
-- `README.md` e `SETUP.md` citam Better Auth, BullMQ, PostGIS e serviços de upload como stack/direção; integração efetiva não foi encontrada.
 - `@hugg/types` e `@hugg/schemas` mantêm alguns tipos de domínio em paralelo, criando risco de divergência.
 - Não há suíte automatizada de testes do produto nos manifests atuais.
 - O changelog representa principalmente o setup inicial e não deve ser usado como inventário completo.
-

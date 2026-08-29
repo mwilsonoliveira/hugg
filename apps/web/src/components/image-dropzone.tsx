@@ -3,6 +3,7 @@
 import { Image } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { upload } from "@vercel/blob/client";
 
 interface ImageDropzoneProps {
   value: string[];
@@ -11,40 +12,53 @@ interface ImageDropzoneProps {
 }
 
 export function ImageDropzone({ value, onChange, error }: ImageDropzoneProps) {
-  const [previews, setPreviews] = useState<{ url: string; dataUrl: string }[]>(
-    value.map((u) => ({ url: u, dataUrl: u })),
-  );
+  const [previews, setPreviews] = useState<string[]>(value);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string>();
 
   const onDrop = useCallback(
-    (accepted: File[]) => {
-      accepted.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const dataUrl = e.target?.result as string;
-          setPreviews((prev) => {
-            const next = [...prev, { url: dataUrl, dataUrl }];
-            onChange(next.map((p) => p.dataUrl));
-            return next;
-          });
-        };
-        reader.readAsDataURL(file);
-      });
+    async (accepted: File[]) => {
+      const available = Math.max(0, 5 - previews.length);
+      if (accepted.length > available) {
+        setUploadError("É possível cadastrar no máximo 5 fotos.");
+        accepted = accepted.slice(0, available);
+      }
+      if (!accepted.length) return;
+      setUploading(true);
+      setUploadError(undefined);
+      try {
+        const blobs = await Promise.all(accepted.map((file) => upload(
+          `pets/${file.name}`,
+          file,
+          { access: "public", handleUploadUrl: "/api/uploads" },
+        )));
+        const next = [...previews, ...blobs.map((blob) => blob.url)];
+        setPreviews(next);
+        onChange(next);
+      } catch {
+        setUploadError("Não foi possível enviar as fotos. Tente novamente.");
+      } finally {
+        setUploading(false);
+      }
     },
-    [onChange],
+    [onChange, previews],
   );
 
   const remove = (index: number) => {
     setPreviews((prev) => {
       const next = prev.filter((_, i) => i !== index);
-      onChange(next.map((p) => p.dataUrl));
+      onChange(next);
       return next;
     });
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { "image/*": [] },
+    accept: { "image/jpeg": [], "image/png": [], "image/webp": [] },
     multiple: true,
+    maxFiles: 5,
+    maxSize: 5 * 1024 * 1024,
+    disabled: uploading || previews.length >= 5,
   });
 
   return (
@@ -64,7 +78,9 @@ export function ImageDropzone({ value, onChange, error }: ImageDropzoneProps) {
           <Image className="text-gray-400 mb-2" size={32} />
         </div>
         <p className="text-sm text-gray-500">
-          {isDragActive
+          {uploading
+            ? "Enviando fotos..."
+            : isDragActive
             ? "Solte as fotos aqui..."
             : (
               <>
@@ -78,10 +94,10 @@ export function ImageDropzone({ value, onChange, error }: ImageDropzoneProps) {
 
       {previews.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {previews.map((p, i) => (
+          {previews.map((url, i) => (
             <div key={i} className="relative w-20 h-20">
               <img
-                src={p.dataUrl}
+                src={url}
                 alt={`foto ${i + 1}`}
                 className="w-full h-full object-cover rounded-lg"
               />
@@ -97,7 +113,7 @@ export function ImageDropzone({ value, onChange, error }: ImageDropzoneProps) {
         </div>
       )}
 
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {(error || uploadError) && <p className="text-xs text-red-500">{error ?? uploadError}</p>}
     </div>
   );
 }

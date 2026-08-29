@@ -3,7 +3,7 @@ name: Migration for Develop
 on:
   push:
     paths:
-      - apps/api/prisma/migrations/**
+      - packages/database/prisma/migrations/**
     branches:
       - develop
   workflow_dispatch:
@@ -14,4 +14,5 @@ jobs:
     with:
       environment: 'develop'
     secrets:
-      database_url: ${{ secrets.DATABASE_URL_DEVELOP }}
+      turso_database_url: ${{ secrets.TURSO_DATABASE_URL_PREVIEW }}
+      turso_auth_token: ${{ secrets.TURSO_AUTH_TOKEN_PREVIEW }}

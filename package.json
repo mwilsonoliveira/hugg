@@ -10,8 +10,10 @@
     "sdd:check": "node scripts/sdd-check.mjs",
     "sdd:test": "node --test scripts/sdd-check.test.mjs",
     "clean": "turbo run clean && rm -rf node_modules",
-    "db:up": "bash scripts/dev-up.sh",
-    "db:down": "docker compose down"
+    "db:generate": "pnpm --filter @hugg/database db:generate",
+    "db:migrate": "pnpm --filter @hugg/database db:migrate",
+    "db:seed": "pnpm --filter @hugg/database db:seed",
+    "db:studio": "pnpm --filter @hugg/database db:studio"
   },
   "devDependencies": {
     "turbo": "^2.0.0",

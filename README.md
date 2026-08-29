@@ -1,131 +1,74 @@
 # hugg
-### Faça um animal desabrigado achar um lar!
+
+Faça um animal desabrigado achar um lar.
 
 Demo: [huggapp.vercel.app](https://huggapp.vercel.app)
 
----
+## Arquitetura
 
-## Requisitos
+Frontend e API rodam juntos no Next.js 14, publicados como um único projeto Vercel. Route Handlers ficam em `apps/web/src/app/api`, serviços em `apps/web/src/server` e Prisma em `packages/database`.
 
-- [Node.js](https://nodejs.org) >= 20
-- [pnpm](https://pnpm.io) >= 9
-- [Docker](https://www.docker.com) + Docker Compose
+- Produção: Turso/libSQL e Vercel Blob público.
+- Preview: banco Turso e Blob separados de produção.
+- Desenvolvimento: SQLite local e Blob Store de desenvolvimento.
+- Autenticação: cookie HTTP-only e compatibilidade com `Authorization: Bearer`.
 
----
+## Desenvolvimento
 
-## Instalação
+Requisitos: Node.js 20+ e pnpm 9+.
 
 ```bash
 pnpm install
-```
-
----
-
-## Subindo o ambiente de desenvolvimento
-
-### 1. Variáveis de ambiente
-
-Copie o arquivo de exemplo da API:
-
-```bash
-cp apps/api/.env.example apps/api/.env
-```
-
-O `.env` já vem configurado para apontar ao banco do Docker, nenhuma edição é necessária para rodar localmente.
-
-### 2. Banco de dados + seed
-
-O comando abaixo sobe os containers (PostgreSQL e Redis), aplica as migrations e popula o banco com dados de teste:
-
-```bash
-pnpm db:up
-```
-
-> Na primeira execução, o Prisma pedirá um nome para a migration. Dê o nome que preferir e pressione Enter.
-
-### 3. Aplicações
-
-Com o banco pronto, suba todas as aplicações em paralelo via Turborepo:
-
-```bash
+cp apps/web/.env.example apps/web/.env.local
+pnpm db:generate
+pnpm db:migrate
+pnpm db:seed
 pnpm dev
 ```
 
-| App | URL |
-|-----|-----|
-| Web (Next.js) | http://localhost:3000 |
-| API (Fastify) | http://localhost:3001 |
-| Mobile (Expo) | Escaneie o QR Code no terminal |
-
----
+Web e API ficam em `http://localhost:3000`. Docker, PostgreSQL, Redis e um processo separado para a API não são necessários.
 
 ## Comandos úteis
 
 | Comando | Descrição |
-|---------|-----------|
-| `pnpm db:up` | Sobe Docker + migrations + seed |
-| `pnpm db:down` | Derruba os containers |
-| `pnpm dev` | Inicia todas as apps |
-| `pnpm build` | Build de todas as apps |
-| `pnpm lint` | Lint em todos os pacotes |
-| `pnpm type-check` | Type check em todos os pacotes |
-| `pnpm sdd:check` | Valida a estrutura e a rastreabilidade das specs |
-| `pnpm sdd:test` | Executa os testes do validador SDD |
-
-### Comandos da API
-
-Executados dentro de `apps/api/`:
-
-| Comando | Descrição |
-|---------|-----------|
-| `pnpm db:migrate` | Aplica migrations pendentes |
+|---|---|
+| `pnpm dev` | Inicia as aplicações |
+| `pnpm build` | Gera o build completo |
+| `pnpm type-check` | Valida os tipos |
 | `pnpm db:generate` | Gera o Prisma Client |
-| `pnpm db:seed` | Popula o banco com dados de teste |
+| `pnpm db:migrate` | Aplica migrations SQLite/libSQL |
+| `pnpm db:seed` | Cria o usuário local de teste |
 | `pnpm db:studio` | Abre o Prisma Studio |
+| `pnpm sdd:check` | Valida specs e rastreabilidade |
 
----
+## Vercel
 
-## Estrutura do monorepo
+Configure o Root Directory como `apps/web`, vincule um Blob Store público e defina por ambiente:
 
+| Variável | Production | Preview | Development |
+|---|---|---|---|
+| `TURSO_DATABASE_URL` | banco de produção | banco de preview | `file:../../packages/database/prisma/dev.db` |
+| `TURSO_AUTH_TOKEN` | token de produção | token de preview | vazio |
+| `JWT_SECRET` | preserve o segredo atual | segredo próprio | segredo local |
+| `BLOB_READ_WRITE_TOKEN` | store de produção | store de preview | token de desenvolvimento |
+| `MAINTENANCE_MODE` | `false` normalmente | `false` | `false` |
+
+Nunca exponha tokens com prefixo `NEXT_PUBLIC_`. O provisionamento e o cutover estão em [docs/deployment.md](docs/deployment.md).
+
+## Estrutura
+
+```text
+apps/
+  web/                    Next.js, UI e Route Handlers
+  mobile/                 Expo/React Native
+packages/
+  database/               Prisma, Turso e migrations
+  schemas/                contratos Zod
+  types/                  tipos compartilhados
+  ui/ utils/ config/      pacotes compartilhados
+specs/                    mudanças guiadas por SDD
 ```
-hugg/
-├── apps/
-│   ├── web/       → Next.js 14 (frontend web)
-│   ├── mobile/    → Expo + React Native (app mobile)
-│   └── api/       → Fastify + Prisma (backend)
-├── packages/
-│   ├── ui/        → Componentes React compartilhados
-│   ├── schemas/   → Schemas Zod compartilhados
-│   ├── types/     → Tipos TypeScript globais
-│   ├── utils/     → Funções utilitárias
-│   └── config/    → ESLint, TSConfig e Tailwind base
-└── docker-compose.yml
-```
-
----
-
-## Stack
-
-| Camada | Tecnologia |
-|--------|-----------|
-| Web | Next.js 14, Tailwind CSS, shadcn/ui, Zustand |
-| Mobile | Expo SDK 54, Expo Router, NativeWind |
-| API | Fastify, Prisma v7, Better Auth, BullMQ |
-| Banco | PostgreSQL + PostGIS, Redis |
-
----
 
 ## Spec-Driven Development
 
-Mudanças no Hugg são guiadas por especificações versionadas. Antes de alterar o código, leia [`AGENTS.md`](AGENTS.md) e a [constituição do projeto](.specify/memory/constitution.md).
-
-O fluxo padrão é:
-
-```text
-constitution → spec → plan → tasks → implement → validate
-```
-
-- Features, contratos, dados, segurança e arquitetura usam o track `standard` completo.
-- Documentação e correções triviais sem alteração de contrato podem usar o track `fast`.
-- Cada mudança vive em `specs/NNN-kebab-case/`; consulte [`specs/README.md`](specs/README.md) e os templates em [`.specify/templates/`](.specify/templates/).
-- Execute `pnpm sdd:check` antes de concluir uma mudança.
+Antes de alterar código, leia [`AGENTS.md`](AGENTS.md) e a [constituição](.specify/memory/constitution.md). O fluxo é `constitution → spec → plan → tasks → implement → validate`; cada mudança vive em `specs/NNN-kebab-case/`.

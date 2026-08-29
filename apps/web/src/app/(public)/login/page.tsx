@@ -1,4 +1,4 @@
-import { getPets } from "@/lib/api";
+import { listPets as getPets } from "@/server/pets";
 import { LoginForm } from "./login-form";
 
 export default async function LoginPage() {

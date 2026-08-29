@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { jwtDecode } from "jwt-decode";
+import { AUTH_COOKIE, verifyToken } from "@/server/auth";
 
 export interface SessionUser {
   id: string;
@@ -7,23 +7,7 @@ export interface SessionUser {
   email: string;
 }
 
-interface JWTPayload {
-  sub: string;
-  name: string;
-  email: string;
-  exp: number;
-}
-
 export async function getCurrentUser(): Promise<SessionUser | null> {
   const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-  if (!token) return null;
-
-  try {
-    const payload = jwtDecode<JWTPayload>(token);
-    if (!payload.sub || payload.exp < Math.floor(Date.now() / 1000)) return null;
-    return { id: payload.sub, name: payload.name, email: payload.email };
-  } catch {
-    return null;
-  }
+  return verifyToken(cookieStore.get(AUTH_COOKIE)?.value);
 }

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { getPetById } from "@/lib/api";
+import { getPet as getPetById } from "@/server/pets";
 import { getCurrentUser } from "@/lib/session";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { PetPhotoCarousel } from "@/components/pet-photo-carousel";
@@ -90,9 +90,8 @@ export default async function PetDetailPage({ params }: Props) {
               situation={pet.situation}
               size="md"
             />
-            <Link
+            {user?.id === pet.createdById && <Link
               href={`/pets/${pet.id}/edit`}
-
               className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-50 transition-colors"
             >
               <svg
@@ -105,7 +104,7 @@ export default async function PetDetailPage({ params }: Props) {
                 <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0010 3H4.75A2.75 2.75 0 002 5.75v9.5A2.75 2.75 0 004.75 18h9.5A2.75 2.75 0 0017 15.25V10a.75.75 0 00-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5z" />
               </svg>
               Editar
-            </Link>
+            </Link>}
             {user && <UserDropdown user={user} />}
           </div>
         </div>
