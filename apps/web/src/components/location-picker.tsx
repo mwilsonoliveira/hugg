@@ -1,14 +1,18 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useReducer } from "react";
 import {
   APIProvider,
   Map,
-  AdvancedMarker,
+  Marker,
   useMap,
   type MapMouseEvent,
 } from "@vis.gl/react-google-maps";
 import { MapPinned, Loader2 } from "lucide-react";
+import {
+  getGeolocationErrorMessage,
+  reduceMapLoadStatus,
+} from "./location-picker-state";
 
 interface LocationPickerProps {
   latitude?: number;
@@ -66,8 +70,6 @@ function MapPicker({
   const hasPin = latitude != null && longitude != null;
   const defaultCenter = hasPin ? { lat: latitude, lng: longitude } : BRAZIL_CENTER;
   const defaultZoom = hasPin ? 15 : 4;
-  const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID ?? "DEMO_MAP_ID";
-
   const handleMapClick = useCallback(
     (e: MapMouseEvent) => {
       if (e.detail.latLng) {
@@ -80,7 +82,6 @@ function MapPicker({
   return (
     <div className="w-full h-52 rounded-xl overflow-hidden border border-gray-200">
       <Map
-        mapId={mapId}
         defaultCenter={defaultCenter}
         defaultZoom={defaultZoom}
         onClick={handleMapClick}
@@ -90,7 +91,7 @@ function MapPicker({
       >
         <MapController panRequest={panRequest} />
         {hasPin && (
-          <AdvancedMarker
+          <Marker
             position={{ lat: latitude, lng: longitude }}
             draggable
             onDragEnd={(e) => {
@@ -101,6 +102,69 @@ function MapPicker({
           />
         )}
       </Map>
+    </div>
+  );
+}
+
+function GoogleMapPicker({
+  apiKey,
+  latitude,
+  longitude,
+  panRequest,
+  onLocationChange,
+}: {
+  apiKey: string;
+  latitude?: number;
+  longitude?: number;
+  panRequest: PanRequest | null;
+  onLocationChange: (lat: number, lng: number) => void;
+}) {
+  const [status, dispatch] = useReducer(reduceMapLoadStatus, "loading");
+  const handleLoad = useCallback(() => dispatch("loaded"), []);
+  const handleError = useCallback(() => dispatch("failed"), []);
+
+  if (status === "error") {
+    return (
+      <MapFallback>
+        <span>Não foi possível carregar o Google Maps.</span>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="font-medium text-orange-500 hover:text-orange-600"
+        >
+          Tentar novamente
+        </button>
+      </MapFallback>
+    );
+  }
+
+  return (
+    <div className="relative">
+      <APIProvider apiKey={apiKey} onLoad={handleLoad} onError={handleError}>
+        <MapPicker
+          latitude={latitude}
+          longitude={longitude}
+          panRequest={panRequest}
+          onLocationChange={onLocationChange}
+        />
+      </APIProvider>
+      {status === "loading" && (
+        <div className="absolute inset-0 rounded-xl bg-gray-50 flex items-center justify-center text-xs text-gray-500">
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+          Carregando mapa...
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MapFallback({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      role="status"
+      className="w-full h-52 rounded-xl border border-dashed border-gray-200 bg-gray-50 flex flex-col gap-2 items-center justify-center text-xs text-gray-500 text-center px-4"
+    >
+      {children}
     </div>
   );
 }
@@ -140,12 +204,9 @@ export function LocationPicker({
       },
       (err) => {
         setGeoLoading(false);
-        if (err.code === err.PERMISSION_DENIED) {
-          setGeoError("Permissão negada. Permita o acesso à localização no navegador.");
-        } else {
-          setGeoError("Não foi possível obter a localização.");
-        }
-      }
+        setGeoError(getGeolocationErrorMessage(err.code));
+      },
+      { timeout: 10_000, maximumAge: 60_000 }
     );
   };
 
@@ -210,20 +271,19 @@ export function LocationPicker({
         {geoError && <p className="text-xs text-red-500">{geoError}</p>}
 
         {apiKey ? (
-          <APIProvider apiKey={apiKey}>
-            <MapPicker
-              latitude={latitude}
-              longitude={longitude}
-              panRequest={panRequest}
-              onLocationChange={onLocationChange}
-            />
-          </APIProvider>
+          <GoogleMapPicker
+            apiKey={apiKey}
+            latitude={latitude}
+            longitude={longitude}
+            panRequest={panRequest}
+            onLocationChange={onLocationChange}
+          />
         ) : (
-          <div className="w-full h-52 rounded-xl border border-dashed border-gray-200 bg-gray-50 flex items-center justify-center">
-            <p className="text-xs text-gray-400 text-center px-4">
+          <MapFallback>
+            <p>
               Configure <code className="font-mono">NEXT_PUBLIC_GOOGLE_MAPS_API_KEY</code> para exibir o mapa
             </p>
-          </div>
+          </MapFallback>
         )}
 
         <p className="text-xs text-gray-400">

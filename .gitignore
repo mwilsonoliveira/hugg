@@ -43,3 +43,6 @@ Thumbs.db
 
 # Generated Prisma Client
 packages/database/src/generated/
+
+# Disposable local uploads
+apps/web/.local/

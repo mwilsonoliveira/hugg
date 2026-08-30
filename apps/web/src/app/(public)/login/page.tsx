@@ -20,5 +20,12 @@ export default async function LoginPage() {
     // sem imagens se a API não responder
   }
 
-  return <LoginForm petImages={petImages} />;
+  const testCredentials = process.env.NODE_ENV === "development"
+    ? {
+        email: process.env.SEED_ADMIN_EMAIL ?? "admin@hugg.com",
+        password: process.env.SEED_ADMIN_PASSWORD ?? "hugg123456",
+      }
+    : undefined;
+
+  return <LoginForm petImages={petImages} testCredentials={testCredentials} />;
 }

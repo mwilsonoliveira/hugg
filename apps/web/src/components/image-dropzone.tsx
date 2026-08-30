@@ -16,6 +16,19 @@ export function ImageDropzone({ value, onChange, error }: ImageDropzoneProps) {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string>();
 
+  const uploadFile = useCallback(async (file: File) => {
+    if (process.env.NODE_ENV !== "development") {
+      return upload(`pets/${file.name}`, file, { access: "public", handleUploadUrl: "/api/uploads" });
+    }
+
+    const formData = new FormData();
+    formData.set("file", file);
+    const response = await fetch("/api/uploads/local", { method: "POST", body: formData });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error ?? "Falha no upload local");
+    return result as { url: string };
+  }, []);
+
   const onDrop = useCallback(
     async (accepted: File[]) => {
       const available = Math.max(0, 5 - previews.length);
@@ -27,21 +40,17 @@ export function ImageDropzone({ value, onChange, error }: ImageDropzoneProps) {
       setUploading(true);
       setUploadError(undefined);
       try {
-        const blobs = await Promise.all(accepted.map((file) => upload(
-          `pets/${file.name}`,
-          file,
-          { access: "public", handleUploadUrl: "/api/uploads" },
-        )));
+        const blobs = await Promise.all(accepted.map(uploadFile));
         const next = [...previews, ...blobs.map((blob) => blob.url)];
         setPreviews(next);
         onChange(next);
-      } catch {
-        setUploadError("Não foi possível enviar as fotos. Tente novamente.");
+      } catch (uploadFailure) {
+        setUploadError(uploadFailure instanceof Error ? uploadFailure.message : "Não foi possível enviar as fotos. Tente novamente.");
       } finally {
         setUploading(false);
       }
     },
-    [onChange, previews],
+    [onChange, previews, uploadFile],
   );
 
   const remove = (index: number) => {

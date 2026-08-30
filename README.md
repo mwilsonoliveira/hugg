@@ -28,6 +28,15 @@ pnpm dev
 
 Web e API ficam em `http://localhost:3000`. Docker, PostgreSQL, Redis e um processo separado para a API não são necessários.
 
+Na tela de login local, use o card **Acesso de teste local** ou informe:
+
+```text
+E-mail: admin@hugg.com
+Senha:  hugg123456
+```
+
+O seed pode ser executado novamente para restaurar essa senha. Em desenvolvimento, fotos são gravadas em `apps/web/.local/uploads`; esse diretório é descartável e ignorado pelo Git. Preview e Production continuam usando Vercel Blob.
+
 ## Comandos úteis
 
 | Comando | Descrição |
