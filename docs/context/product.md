@@ -6,9 +6,9 @@ O Hugg busca conectar animais desabrigados a pessoas capazes de oferecer um novo
 
 ## Atores
 
-- Visitante: acessa o login, mas ainda não navega anonimamente pelo catálogo.
+- Visitante: navega pela home, busca, filtros, proximidade consentida e detalhes completos, incluindo telefone e localização do animal, sem login.
 - Usuário autenticado: consulta pets, busca por nome ou raça, permite localização e publica/edita animais.
-- Publicador ou responsável: pessoa associada ao cadastro do pet; a autorização desse vínculo ainda não está implementada corretamente.
+- Publicador ou responsável: pessoa associada ao cadastro do pet; somente o autor autenticado pode editá-lo.
 - Adotante: papel representado no modelo `Adoption`, ainda sem jornada de API ou interface.
 - Abrigo/resgatador: conceito presente na direção do produto, mas ainda não modelado como entidade ou papel próprio.
 

@@ -34,7 +34,7 @@ Os modelos Prisma são `User`, `Pet`, `SearchHistory` e `Adoption`. Produção e
 
 ## Autenticação e autorização
 
-A aplicação cria hashes bcrypt e tokens JWT com validade de sete dias. A web usa cookie HTTP-only e a API também aceita Bearer. Criação exige autenticação e associa o usuário real; edição exige que o usuário seja o autor do pet.
+A aplicação cria hashes bcrypt e tokens JWT com validade de sete dias. A web usa cookie HTTP-only e a API também aceita Bearer. Criação exige autenticação e associa o usuário real; edição exige que o usuário seja o autor do pet. Home e detalhes completos são públicos. Páginas restritas validam sessão no servidor; o único middleware, em `src/middleware.ts`, aplica o modo de manutenção.
 
 ## Deploy e operação
 
@@ -43,5 +43,5 @@ Web e API são um único deployment Vercel. Migrations Turso são aplicadas fora
 ## Divergências documentais conhecidas
 
 - `@hugg/types` e `@hugg/schemas` mantêm alguns tipos de domínio em paralelo, criando risco de divergência.
-- Não há suíte automatizada de testes do produto nos manifests atuais.
+- A web possui testes Node/tsx para políticas de navegação, localização e uploads; fluxos integrados também têm verificações reproduzíveis registradas nas specs.
 - O changelog representa principalmente o setup inicial e não deve ser usado como inventário completo.

@@ -1,7 +1,12 @@
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/session";
+import { safeReturnTo } from "@/lib/auth-navigation";
 import { listPets as getPets } from "@/server/pets";
 import { LoginForm } from "./login-form";
 
-export default async function LoginPage() {
+export default async function LoginPage({ searchParams }: { searchParams: { next?: string | string[] } }) {
+  const next = safeReturnTo(searchParams.next);
+  if (await getCurrentUser()) redirect(next);
   let petImages: [string?, string?, string?] = [];
 
   try {
@@ -27,5 +32,5 @@ export default async function LoginPage() {
       }
     : undefined;
 
-  return <LoginForm petImages={petImages} testCredentials={testCredentials} />;
+  return <LoginForm next={next} petImages={petImages} testCredentials={testCredentials} />;
 }

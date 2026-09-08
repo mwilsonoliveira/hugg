@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,11 +9,12 @@ import { loginAction } from "@/app/actions/auth";
 import { FaPaw } from "react-icons/fa";
 
 interface LoginFormProps {
+  next: string;
   petImages?: [string?, string?, string?];
   testCredentials?: { email: string; password: string };
 }
 
-export function LoginForm({ petImages = [], testCredentials }: LoginFormProps) {
+export function LoginForm({ petImages = [], testCredentials, next }: LoginFormProps) {
   const [leftUrl, centerUrl, rightUrl] = petImages;
   const [error, setError] = useState<string | null>(null);
 
@@ -27,7 +29,7 @@ export function LoginForm({ petImages = [], testCredentials }: LoginFormProps) {
 
   const onSubmit = async (data: LoginInput) => {
     setError(null);
-    const result = await loginAction(data);
+    const result = await loginAction(data, next);
     if (result?.error) setError(result.error);
   };
 
@@ -144,6 +146,10 @@ export function LoginForm({ petImages = [], testCredentials }: LoginFormProps) {
               {isSubmitting ? "Entrando..." : "Entrar"}
             </button>
           </form>
+
+          <Link href="/" className="mt-6 block text-center text-sm text-orange-600 hover:underline">
+            Continuar explorando os animais
+          </Link>
 
           <p className="mt-6 text-center text-xs text-gray-400">
             Ainda não tem conta?{" "}

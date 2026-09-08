@@ -7,7 +7,7 @@ import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { PetPhotoCarousel } from "@/components/pet-photo-carousel";
 import { speciesLabel, situationLabel, waitingDuration } from "@hugg/utils";
 import { ShareButton } from "@/components/share-button";
-import { UserDropdown } from "@/components/user-dropdown";
+import { AccountNav } from "@/components/account-nav";
 
 interface Props {
   params: { id: string };
@@ -105,7 +105,7 @@ export default async function PetDetailPage({ params }: Props) {
               </svg>
               Editar
             </Link>}
-            {user && <UserDropdown user={user} />}
+            <AccountNav user={user} returnTo={`/pets/${pet.id}`} />
           </div>
         </div>
       </div>

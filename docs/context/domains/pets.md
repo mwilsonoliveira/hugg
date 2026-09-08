@@ -11,8 +11,9 @@ Um pet possui espécie obrigatória, situação, fotos, tempo de espera e respon
 - Idade deve ser inteira e não negativa.
 - A data de espera é obrigatória e não pode estar no futuro.
 - Cadastro, consulta e edição existem; exclusão e transições formais de status não existem.
-- A criação associa temporariamente o primeiro usuário disponível, sem autenticação.
-- A edição não verifica propriedade do cadastro.
+- A criação exige autenticação e associa o usuário real.
+- A edição exige autenticação e verifica a autoria do cadastro.
+- Listagem e detalhes são públicos na web e API, inclusive telefone e localização do animal, conforme spec 005.
 
 ## Superfícies
 

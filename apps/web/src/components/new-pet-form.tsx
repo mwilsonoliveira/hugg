@@ -10,7 +10,7 @@ import { useUnsavedChanges } from "@/components/unsaved-changes-context";
 import { useUser } from "@/components/user-context";
 import { UserDropdown } from "@/components/user-dropdown";
 
-export default function NewPetPage() {
+export function NewPetForm() {
   const router = useRouter();
   const { requestNavigation } = useUnsavedChanges();
   const userCtx = useUser();
