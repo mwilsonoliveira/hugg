@@ -117,7 +117,10 @@ const petBaseSchema = z.object({
     .optional()
     .or(z.literal(NaN).transform(() => undefined)),
   description: z.string().optional(),
-  imageUrls: z.array(z.string()).min(1, "Adicione pelo menos uma foto"),
+  imageUrls: z
+    .array(z.string().url("URL de imagem inválida"))
+    .min(1, "Adicione pelo menos uma foto")
+    .max(5, "Adicione no máximo 5 fotos"),
   waitingSince: z.coerce
     .date({
       required_error: "Informe uma data",

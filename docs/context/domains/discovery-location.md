@@ -17,3 +17,9 @@
 
 Mudanças de precisão, escala, privacidade, retenção de buscas ou estratégia geográfica exigem spec `standard`.
 
+## Mapa no cadastro web
+
+- O seletor usa a Maps JavaScript API por meio de `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`; não exige um Map ID.
+- Em desenvolvimento, a variável fica em `apps/web/.env.local` e requer reiniciar o servidor Next após alterações.
+- O projeto Google Cloud precisa ter Maps JavaScript API e faturamento habilitados. A chave pública deve ser restringida à API e às origens HTTP autorizadas, incluindo a origem local durante desenvolvimento.
+- Falhas do mapa não impedem obter as coordenadas pelo navegador nem preencher os demais campos do cadastro.

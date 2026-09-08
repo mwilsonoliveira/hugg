@@ -34,3 +34,15 @@ Thumbs.db
 
 # TypeScript
 *.tsbuildinfo
+
+# Local SQLite databases
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Generated Prisma Client
+packages/database/src/generated/
+
+# Disposable local uploads
+apps/web/.local/

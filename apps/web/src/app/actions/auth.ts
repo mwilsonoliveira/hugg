@@ -3,65 +3,34 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import type { LoginInput, RegisterUserInput } from "@hugg/schemas";
+import { AUTH_COOKIE, AUTH_COOKIE_OPTIONS, login, register } from "@/server/auth";
+import { safeReturnTo } from "@/lib/auth-navigation";
+import { AppError } from "@/server/errors";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
-
-const COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax" as const,
-  path: "/",
-  maxAge: 60 * 60 * 24 * 7,
-};
-
-export async function loginAction(data: LoginInput): Promise<{ error: string } | never> {
-  let res: Response;
+export async function loginAction(data: LoginInput, next?: string): Promise<{ error: string } | never> {
   try {
-    res = await fetch(`${API_URL}/api/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-  } catch {
-    return { error: "Não foi possível conectar ao servidor. Tente novamente." };
+    const { token } = await login(data);
+    const cookieStore = await cookies();
+    cookieStore.set(AUTH_COOKIE, token, AUTH_COOKIE_OPTIONS);
+  } catch (error) {
+    return { error: error instanceof AppError ? error.message : "Não foi possível entrar. Tente novamente." };
   }
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    return { error: err.error ?? "Credenciais inválidas" };
-  }
-
-  const { token } = await res.json();
-  const cookieStore = await cookies();
-  cookieStore.set("token", token, COOKIE_OPTIONS);
-  redirect("/");
+  redirect(safeReturnTo(next));
 }
 
-export async function registerAction(data: RegisterUserInput): Promise<{ error: string } | never> {
-  let res: Response;
+export async function registerAction(data: RegisterUserInput, next?: string): Promise<{ error: string } | never> {
   try {
-    res = await fetch(`${API_URL}/api/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-  } catch {
-    return { error: "Não foi possível conectar ao servidor. Tente novamente." };
+    const { token } = await register(data);
+    const cookieStore = await cookies();
+    cookieStore.set(AUTH_COOKIE, token, AUTH_COOKIE_OPTIONS);
+  } catch (error) {
+    return { error: error instanceof AppError ? error.message : "Não foi possível criar a conta." };
   }
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    return { error: err.error ?? "Erro ao criar conta" };
-  }
-
-  const { token } = await res.json();
-  const cookieStore = await cookies();
-  cookieStore.set("token", token, COOKIE_OPTIONS);
-  redirect("/");
+  redirect(safeReturnTo(next));
 }
 
 export async function logoutAction() {
   const cookieStore = await cookies();
-  cookieStore.delete("token");
-  redirect("/login");
+  cookieStore.delete(AUTH_COOKIE);
+  redirect("/");
 }

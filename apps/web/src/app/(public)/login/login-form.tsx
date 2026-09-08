@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,16 +9,19 @@ import { loginAction } from "@/app/actions/auth";
 import { FaPaw } from "react-icons/fa";
 
 interface LoginFormProps {
+  next: string;
   petImages?: [string?, string?, string?];
+  testCredentials?: { email: string; password: string };
 }
 
-export function LoginForm({ petImages = [] }: LoginFormProps) {
+export function LoginForm({ petImages = [], testCredentials, next }: LoginFormProps) {
   const [leftUrl, centerUrl, rightUrl] = petImages;
   const [error, setError] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
@@ -25,7 +29,7 @@ export function LoginForm({ petImages = [] }: LoginFormProps) {
 
   const onSubmit = async (data: LoginInput) => {
     setError(null);
-    const result = await loginAction(data);
+    const result = await loginAction(data, next);
     if (result?.error) setError(result.error);
   };
 
@@ -75,6 +79,23 @@ export function LoginForm({ petImages = [] }: LoginFormProps) {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+            {testCredentials && (
+              <aside className="rounded-xl border border-orange-200 bg-orange-50 p-3 text-xs text-orange-900">
+                <p className="font-semibold">Acesso de teste local</p>
+                <p className="mt-1 font-mono break-all">{testCredentials.email}</p>
+                <p className="font-mono">{testCredentials.password}</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setValue("email", testCredentials.email, { shouldValidate: true });
+                    setValue("password", testCredentials.password, { shouldValidate: true });
+                  }}
+                  className="mt-2 font-medium text-orange-700 hover:text-orange-800 underline"
+                >
+                  Preencher credenciais
+                </button>
+              </aside>
+            )}
             <div className="flex flex-col gap-1.5">
               <label htmlFor="email" className="text-sm font-medium text-gray-700">
                 E-mail
@@ -125,6 +146,10 @@ export function LoginForm({ petImages = [] }: LoginFormProps) {
               {isSubmitting ? "Entrando..." : "Entrar"}
             </button>
           </form>
+
+          <Link href="/" className="mt-6 block text-center text-sm text-orange-600 hover:underline">
+            Continuar explorando os animais
+          </Link>
 
           <p className="mt-6 text-center text-xs text-gray-400">
             Ainda não tem conta?{" "}

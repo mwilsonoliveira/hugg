@@ -1,4 +1,4 @@
-name: Reusable Migration Workflow
+name: Reusable Turso Migration Workflow
 
 on:
   workflow_call:
@@ -8,7 +8,9 @@ on:
         required: true
         type: string
     secrets:
-      database_url:
+      turso_database_url:
+        required: true
+      turso_auth_token:
         required: true
 
 jobs:
@@ -31,8 +33,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Apply migrations
-        working-directory: apps/api
-        run: npx prisma migrate deploy
+        run: pnpm --filter @hugg/database db:migrate
         env:
-          DATABASE_URL: ${{ secrets.database_url }}
-          DIRECT_URL: ${{ secrets.database_url }}
+          TURSO_DATABASE_URL: ${{ secrets.turso_database_url }}
+          TURSO_AUTH_TOKEN: ${{ secrets.turso_auth_token }}

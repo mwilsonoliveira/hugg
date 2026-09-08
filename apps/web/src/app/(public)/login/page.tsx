@@ -1,7 +1,12 @@
-import { getPets } from "@/lib/api";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/session";
+import { safeReturnTo } from "@/lib/auth-navigation";
+import { listPets as getPets } from "@/server/pets";
 import { LoginForm } from "./login-form";
 
-export default async function LoginPage() {
+export default async function LoginPage({ searchParams }: { searchParams: { next?: string | string[] } }) {
+  const next = safeReturnTo(searchParams.next);
+  if (await getCurrentUser()) redirect(next);
   let petImages: [string?, string?, string?] = [];
 
   try {
@@ -20,5 +25,12 @@ export default async function LoginPage() {
     // sem imagens se a API não responder
   }
 
-  return <LoginForm petImages={petImages} />;
+  const testCredentials = process.env.NODE_ENV === "development"
+    ? {
+        email: process.env.SEED_ADMIN_EMAIL ?? "admin@hugg.com",
+        password: process.env.SEED_ADMIN_PASSWORD ?? "hugg123456",
+      }
+    : undefined;
+
+  return <LoginForm next={next} petImages={petImages} testCredentials={testCredentials} />;
 }

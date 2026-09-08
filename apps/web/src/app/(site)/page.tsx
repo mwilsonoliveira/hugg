@@ -1,0 +1,14 @@
+import { listPets as getPets } from "@/server/pets";
+import { getCurrentUser } from "@/lib/session";
+import { HomePageContent } from "@/components/home-page-content";
+
+const EMPTY_PETS = { data: [], total: 0, page: 1, limit: 12 };
+
+export default async function Home() {
+  const [initialData, user] = await Promise.all([
+    getPets({ page: 1, limit: 12 }).catch(() => EMPTY_PETS),
+    getCurrentUser(),
+  ]);
+
+  return <HomePageContent initialData={initialData} user={user} />;
+}
