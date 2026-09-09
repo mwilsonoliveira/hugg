@@ -6,7 +6,7 @@ import type { SessionUser } from "@/lib/session";
 import { PetCard } from "@/components/pet-card";
 import { PetCardSkeleton } from "@/components/pet-card-skeleton";
 import { PetFilters } from "@/components/pet-filters";
-import { UserDropdown } from "@/components/user-dropdown";
+import { AccountNav } from "@/components/account-nav";
 import { HuggLogo } from "@/components/hugg-logo";
 import { MobileBottomNav } from "@/components/mobile-bottom-nav";
 import { getPets, getNearbyPets, recordSearch } from "@/lib/api";
@@ -20,7 +20,7 @@ const PAGE_SIZE = 12;
 
 interface HomePageContentProps {
   initialData: PaginatedPets;
-  user: SessionUser;
+  user: SessionUser | null;
 }
 
 export function HomePageContent({ initialData, user }: HomePageContentProps) {
@@ -131,7 +131,7 @@ export function HomePageContent({ initialData, user }: HomePageContentProps) {
                 </p>
               </div>
             </div>
-            <UserDropdown user={user} />
+            <AccountNav user={user} returnTo="/" />
           </div>
 
           {/* Filters row — desktop only */}

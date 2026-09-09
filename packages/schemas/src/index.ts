@@ -117,7 +117,10 @@ const petBaseSchema = z.object({
     .optional()
     .or(z.literal(NaN).transform(() => undefined)),
   description: z.string().optional(),
-  imageUrls: z.array(z.string()).min(1, "Adicione pelo menos uma foto"),
+  imageUrls: z
+    .array(z.string().url("URL de imagem inválida"))
+    .min(1, "Adicione pelo menos uma foto")
+    .max(5, "Adicione no máximo 5 fotos"),
   waitingSince: z.coerce
     .date({
       required_error: "Informe uma data",
@@ -220,3 +223,9 @@ export type NearbyPetsQuery = z.infer<typeof nearbyPetsQuerySchema>;
 export type CreateAdoptionInput = z.infer<typeof createAdoptionSchema>;
 export type RegisterUserInput = z.infer<typeof registerUserSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+
+// Web authentication context: server revalidates destinations and identity.
+export const authIntentSchema = z.enum(["create", "edit", "sign-in"]);
+export const googleLinkSchema = z.object({ password: z.string().min(1).max(1024) });
+export type AuthIntent = z.infer<typeof authIntentSchema>;
+export type GoogleLinkInput = z.infer<typeof googleLinkSchema>;

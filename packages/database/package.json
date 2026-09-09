@@ -1,0 +1,37 @@
+{
+  "name": "@hugg/database",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "prisma generate && tsc --noEmit",
+    "type-check": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "test": "node --import tsx --test src/*.test.ts",
+    "db:generate": "prisma generate",
+    "db:migrate": "tsx scripts/apply-migrations.ts",
+    "db:migrate:railway": "tsx scripts/migrate-postgres-to-turso.ts",
+    "db:seed": "tsx scripts/seed.ts",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.15.0",
+    "@prisma/adapter-libsql": "^7.0.0",
+    "@prisma/client": "^7.0.0",
+    "@vercel/blob": "^1.0.0",
+    "pg": "^8.13.0"
+  },
+  "devDependencies": {
+    "@hugg/config": "workspace:*",
+    "@types/node": "^20.0.0",
+    "@types/pg": "^8.11.0",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^16.0.0",
+    "prisma": "^7.0.0",
+    "tsx": "^4.10.0",
+    "typescript": "^5.4.0"
+  }
+}

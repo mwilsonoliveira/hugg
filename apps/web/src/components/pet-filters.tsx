@@ -1,5 +1,7 @@
 "use client";
 
+import { ProtectedLink } from "./protected-link";
+
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Clock } from "lucide-react";
@@ -59,12 +61,13 @@ export function PetFilters({
   return (
     <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
       {/* Botão Achei um pet */}
-      <Link
+      <ProtectedLink
+        intent="create"
         href="/pets/new"
         className="shrink-0 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors text-center"
       >
         Achei um pet!
-      </Link>
+      </ProtectedLink>
 
       {/* Abrigos */}
       <Link

@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuthModal } from "./auth-modal-provider";
 import { usePathname, useRouter } from "next/navigation";
 import {
   House,
@@ -60,6 +61,7 @@ function NavButton({ icon: Icon, label, active, onClick }: NavButtonProps) {
 
 export function MobileBottomNav({ onSearchToggle, searchOpen }: MobileBottomNavProps) {
   const pathname = usePathname();
+  const auth = useAuthModal();
   const router = useRouter();
   const { requestNavigation } = useUnsavedChanges();
 
@@ -77,7 +79,8 @@ export function MobileBottomNav({ onSearchToggle, searchOpen }: MobileBottomNavP
         {/* Botão principal — Achei um pet */}
         <div className="flex flex-col items-center -mt-6">
           <button
-            onClick={() => navigate("/pets/new")}
+            aria-label="Cadastrar um animal"
+            onClick={() => { if (auth && !auth.authenticated) auth.open({ intent: "create", next: "/pets/new" }); else navigate("/pets/new"); }}
             className="w-14 h-14 rounded-full bg-orange-500 hover:bg-orange-600 active:scale-95 transition-all flex items-center justify-center shadow-lg ring-4 ring-white"
           >
             <Plus size={28} weight="bold" color="white" />

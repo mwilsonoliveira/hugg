@@ -1,24 +1,16 @@
-import { getPets } from "@/lib/api";
-import { LoginForm } from "./login-form";
+import { redirect } from 'next/navigation';
+import { getCurrentUser } from '@/lib/session';
+import { safeReturnTo } from '@/lib/auth-navigation';
+import { googleEnabled, readAuthFlow } from '@/server/google-auth';
+import { LoginForm } from './login-form';
 
-export default async function LoginPage() {
-  let petImages: [string?, string?, string?] = [];
-
-  try {
-    const { data } = await getPets({ page: 1, limit: 50 });
-    const urls = data
-      .filter((p) => p.imageUrls.length > 0)
-      .map((p) => p.imageUrls[0] as string);
-
-    // shuffle e pega até 3
-    for (let i = urls.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [urls[i], urls[j]] = [urls[j]!, urls[i]!];
-    }
-    petImages = [urls[0], urls[1], urls[2]];
-  } catch {
-    // sem imagens se a API não responder
-  }
-
-  return <LoginForm petImages={petImages} />;
+export default async function LoginPage({ searchParams }: { searchParams: { next?: string | string[]; auth?: string } }) {
+  const next = safeReturnTo(searchParams.next);
+  if (await getCurrentUser()) redirect(next);
+  const flow = readAuthFlow();
+  const linking = searchParams.auth === 'google-link' && flow?.phase === 'link';
+  const initialError = searchParams.auth === 'google-cancelled' ? 'O acesso com Google foi cancelado. Você pode tentar novamente ou usar e-mail.'
+    : searchParams.auth === 'google-error' || (searchParams.auth === 'google-link' && !linking) ? 'Não foi possível entrar com Google. Tente novamente ou use e-mail.' : undefined;
+  const testCredentials = process.env.NODE_ENV === 'development' ? { email: process.env.SEED_ADMIN_EMAIL ?? 'admin@hugg.com', password: process.env.SEED_ADMIN_PASSWORD ?? 'hugg123456' } : undefined;
+  return <LoginForm next={linking ? flow.next : next} intent={next === '/pets/new' ? 'create' : next.endsWith('/edit') ? 'edit' : 'sign-in'} googleEnabled={googleEnabled()} initialView={linking ? 'link' : 'login'} initialError={initialError} linkEmail={linking ? flow.email : undefined} testCredentials={testCredentials} />;
 }
