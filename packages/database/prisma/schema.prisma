@@ -12,7 +12,8 @@ model User {
   id           String   @id @default(cuid())
   name         String
   email        String   @unique
-  passwordHash String
+  passwordHash String?
+  googleSubject String? @unique
   phone        String?
   avatarUrl    String?
   createdAt    DateTime @default(now())
@@ -106,4 +107,13 @@ enum AdoptionStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+// Short-lived replay protection; no Google tokens or personal information.
+model AuthAttempt {
+  id        String   @id
+  expiresAt DateTime
+  attempts  Int      @default(0)
+
+  @@index([expiresAt])
 }

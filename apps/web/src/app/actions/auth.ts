@@ -34,3 +34,42 @@ export async function logoutAction() {
   cookieStore.delete(AUTH_COOKIE);
   redirect("/");
 }
+
+export async function authenticateAction(mode: 'login' | 'register', data: LoginInput | RegisterUserInput): Promise<{ ok: true } | { error: string }> {
+  try {
+    const result = mode === 'register' ? await register(data as RegisterUserInput) : await login(data);
+    cookies().set(AUTH_COOKIE, result.token, AUTH_COOKIE_OPTIONS);
+    await cancelAuthFlowAction();
+    return { ok: true };
+  } catch (error) {
+    return { error: error instanceof AppError ? error.message : 'Não foi possível continuar. Tente novamente.' };
+  }
+}
+
+export async function confirmGoogleLinkAction(data: unknown): Promise<{ ok: true; next: string } | { error: string }> {
+  try {
+    const { googleLinkSchema } = await import('@hugg/schemas');
+    const parsed = googleLinkSchema.safeParse(data);
+    if (!parsed.success) return { error: 'Informe sua senha.' };
+    const { readAuthFlow } = await import('@/server/google-auth');
+    const { confirmGoogleLink } = await import('@/server/google-accounts');
+    const { FLOW_COOKIE } = await import('@/server/auth-flow');
+    const flow = readAuthFlow();
+    if (!flow || flow.phase !== 'link') return { error: 'A confirmação expirou. Continue com Google novamente.' };
+    const result = await confirmGoogleLink(flow, parsed.data.password);
+    cookies().set(AUTH_COOKIE, result.token, AUTH_COOKIE_OPTIONS);
+    cookies().delete(FLOW_COOKIE);
+    return { ok: true, next: safeReturnTo(flow.next) };
+  } catch (error) {
+    return { error: error instanceof AppError ? error.message : 'Não foi possível vincular sua conta. Tente novamente.' };
+  }
+}
+
+export async function cancelAuthFlowAction() {
+  const { readAuthFlow } = await import('@/server/google-auth');
+  const { FLOW_COOKIE } = await import('@/server/auth-flow');
+  const { prisma } = await import('@hugg/database');
+  const flow = readAuthFlow();
+  cookies().delete(FLOW_COOKIE);
+  if (flow) await prisma.authAttempt.deleteMany({ where: { id: flow.id } });
+}
