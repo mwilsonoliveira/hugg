@@ -223,3 +223,9 @@ export type NearbyPetsQuery = z.infer<typeof nearbyPetsQuerySchema>;
 export type CreateAdoptionInput = z.infer<typeof createAdoptionSchema>;
 export type RegisterUserInput = z.infer<typeof registerUserSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+
+// Web authentication context: server revalidates destinations and identity.
+export const authIntentSchema = z.enum(["create", "edit", "sign-in"]);
+export const googleLinkSchema = z.object({ password: z.string().min(1).max(1024) });
+export type AuthIntent = z.infer<typeof authIntentSchema>;
+export type GoogleLinkInput = z.infer<typeof googleLinkSchema>;

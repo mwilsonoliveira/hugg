@@ -30,7 +30,7 @@ Não existe hoje um contrato OpenAPI versionado. Quando uma feature alterar ou a
 
 ## Persistência
 
-Os modelos Prisma são `User`, `Pet`, `SearchHistory` e `Adoption`. Produção e preview usam bancos Turso separados; desenvolvimento usa SQLite local. `Pet.imageUrls` é JSON internamente e `string[]` no contrato. A proximidade continua calculada na aplicação.
+Os modelos Prisma são `User`, `Pet`, `SearchHistory`, `Adoption` e `AuthAttempt` (controle temporário de OAuth). Produção e preview usam bancos Turso separados; desenvolvimento usa SQLite local. `Pet.imageUrls` é JSON internamente e `string[]` no contrato. A proximidade continua calculada na aplicação.
 
 ## Autenticação e autorização
 

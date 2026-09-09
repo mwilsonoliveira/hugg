@@ -115,7 +115,7 @@ try {
     await delay(800);
   };
   const fill = async (selector, value) => evaluate(`(() => {const el = document.querySelector(${JSON.stringify(selector)}); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, ${JSON.stringify(value)}); el.dispatchEvent(new Event('input', {bubbles:true})); el.dispatchEvent(new Event('change', {bubbles:true}));})()`);
-  const clickText = async text => evaluate(`(() => {const el = [...document.querySelectorAll('button,a')].find(el => el.textContent.trim() === ${JSON.stringify(text)} && el.getBoundingClientRect().width > 0); if (!el) throw Error('Missing button'); el.click();})()`);
+  const clickText = async text => evaluate(`(() => {const scope = document.querySelector('dialog[open]') ?? document; const el = [...scope.querySelectorAll('button,a')].find(el => el.textContent.trim() === ${JSON.stringify(text)} && el.getBoundingClientRect().width > 0); if (!el) throw Error('Missing button'); el.click();})()`);
   await cdp('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
   await go('/');
   await until(`!![...document.querySelectorAll('a')].find(a => a.textContent.trim() === 'Entrar')`);
@@ -124,15 +124,16 @@ try {
   await delay(1600);
   assert.ok(await evaluate(`!!document.querySelector('a[href="${detail}"]')`));
   await clickText('Achei um pet!');
-  await until('location.pathname === "/login" && !!document.querySelector("#email")');
-  assert.equal(await evaluate('new URLSearchParams(location.search).get("next")'), '/pets/new');
+  await until('!!document.querySelector("dialog[open]")');
+  await clickText('Entrar');
+  assert.equal(await evaluate('location.pathname'), '/');
   await delay(800);
-  await fill('#email', credentials.email);
-  await fill('#password', 'incorrect-password');
+  await fill('input[name="email"]', credentials.email);
+  await fill('input[name="password"]', 'incorrect-password');
   await evaluate('document.querySelector("form").requestSubmit()');
   await until('document.body.innerText.includes("Credenciais inválidas")');
-  assert.equal(await evaluate('new URLSearchParams(location.search).get("next")'), '/pets/new');
-  await fill('#password', credentials.password);
+  assert.equal(await evaluate('location.pathname'), '/');
+  await fill('input[name="password"]', credentials.password);
   await evaluate('document.querySelector("form").requestSubmit()');
   await until('location.pathname === "/pets/new" && document.body.innerText.includes("Cadastrar pet")');
   await go('/');
@@ -152,10 +153,11 @@ try {
   // Open the main mobile CTA after dismissing the search overlay by reloading.
   await go('/');
   await evaluate('document.querySelector("nav button.w-14").click()');
-  await until('location.pathname === "/login" && !!document.querySelector("#email")');
+  await until('!!document.querySelector("dialog[open]")');
+  await clickText('Entrar');
   await delay(800);
-  await fill('#email', credentials.email);
-  await fill('#password', credentials.password);
+  await fill('input[name="email"]', credentials.email);
+  await fill('input[name="password"]', credentials.password);
   await evaluate('document.querySelector("form").requestSubmit()');
   await until('location.pathname === "/pets/new" && document.body.innerText.includes("Cadastrar pet")');
   await delay(800);

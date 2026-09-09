@@ -14,7 +14,7 @@ export const AUTH_COOKIE_OPTIONS = {
   maxAge: 60 * 60 * 24 * 7,
 };
 
-function jwtSecret() {
+export function jwtSecret() {
   const secret = process.env.JWT_SECRET;
   if (!secret && process.env.NODE_ENV === "production") {
     throw new Error("JWT_SECRET não configurado");
@@ -50,7 +50,7 @@ export async function login(input: LoginInput) {
   if (!parsed.success) throw new AppError(400, "Dados inválidos", parsed.error.flatten());
 
   const user = await prisma.user.findUnique({ where: { email: parsed.data.email } });
-  if (!user || !(await bcrypt.compare(parsed.data.password, user.passwordHash))) {
+  if (!user?.passwordHash || !(await bcrypt.compare(parsed.data.password, user.passwordHash))) {
     throw new AppError(401, "Credenciais inválidas");
   }
   const safeUser = { id: user.id, name: user.name, email: user.email };
