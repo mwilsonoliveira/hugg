@@ -7,12 +7,22 @@ import { AUTH_COOKIE, AUTH_COOKIE_OPTIONS, login, register } from "@/server/auth
 import { safeReturnTo } from "@/lib/auth-navigation";
 import { AppError } from "@/server/errors";
 
+function logAuthFailure(operation: "login" | "register", error: unknown) {
+  if (error instanceof AppError) return;
+  console.error("[auth] unexpected server action failure", {
+    operation,
+    errorName: error instanceof Error ? error.name : "UnknownError",
+    errorMessage: error instanceof Error ? error.message : String(error),
+  });
+}
+
 export async function loginAction(data: LoginInput, next?: string): Promise<{ error: string } | never> {
   try {
     const { token } = await login(data);
     const cookieStore = await cookies();
     cookieStore.set(AUTH_COOKIE, token, AUTH_COOKIE_OPTIONS);
   } catch (error) {
+    logAuthFailure("login", error);
     return { error: error instanceof AppError ? error.message : "Não foi possível entrar. Tente novamente." };
   }
   redirect(safeReturnTo(next));
@@ -24,6 +34,7 @@ export async function registerAction(data: RegisterUserInput, next?: string): Pr
     const cookieStore = await cookies();
     cookieStore.set(AUTH_COOKIE, token, AUTH_COOKIE_OPTIONS);
   } catch (error) {
+    logAuthFailure("register", error);
     return { error: error instanceof AppError ? error.message : "Não foi possível criar a conta." };
   }
   redirect(safeReturnTo(next));
@@ -42,6 +53,7 @@ export async function authenticateAction(mode: 'login' | 'register', data: Login
     await cancelAuthFlowAction();
     return { ok: true };
   } catch (error) {
+    logAuthFailure(mode, error);
     return { error: error instanceof AppError ? error.message : 'Não foi possível continuar. Tente novamente.' };
   }
 }
