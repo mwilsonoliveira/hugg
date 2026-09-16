@@ -1,4 +1,5 @@
-import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
+import { handleUploadPresigned, type HandleUploadPresignedBody } from "@vercel/blob/client";
+import { issueSignedToken } from "@vercel/blob";
 import { NextResponse, type NextRequest } from "next/server";
 import { requestUser } from "@/server/request-auth";
 
@@ -7,15 +8,22 @@ export async function POST(request: NextRequest) {
   if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
 
   try {
-    const body = (await request.json()) as HandleUploadBody;
-    const response = await handleUpload({
+    const body = (await request.json()) as HandleUploadPresignedBody;
+    const response = await handleUploadPresigned({
       body,
       request,
-      onBeforeGenerateToken: async (pathname) => ({
-        allowedContentTypes: ["image/jpeg", "image/png", "image/webp"],
-        maximumSizeInBytes: 5 * 1024 * 1024,
-        addRandomSuffix: true,
-        tokenPayload: JSON.stringify({ userId: user.id, pathname }),
+      webhookPublicKey: process.env.BLOB_WEBHOOK_PUBLIC_KEY,
+      getSignedToken: async (pathname) => ({
+        token: await issueSignedToken({
+          pathname,
+          operations: ["put"],
+          allowedContentTypes: ["image/jpeg", "image/png", "image/webp"],
+          maximumSizeInBytes: 5 * 1024 * 1024,
+        }),
+        urlOptions: {
+          addRandomSuffix: true,
+          tokenPayload: JSON.stringify({ userId: user.id, pathname }),
+        },
       }),
       onUploadCompleted: async () => {},
     });

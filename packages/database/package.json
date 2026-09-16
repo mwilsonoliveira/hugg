@@ -21,7 +21,7 @@
     "@libsql/client": "^0.15.0",
     "@prisma/adapter-libsql": "^7.0.0",
     "@prisma/client": "^7.0.0",
-    "@vercel/blob": "^1.0.0",
+    "@vercel/blob": "^2.6.1",
     "pg": "^8.13.0"
   },
   "devDependencies": {
