@@ -3,7 +3,7 @@
 import { Image } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { upload } from "@vercel/blob/client";
+import { uploadPresigned } from "@vercel/blob/client";
 
 interface ImageDropzoneProps {
   value: string[];
@@ -18,7 +18,7 @@ export function ImageDropzone({ value, onChange, error }: ImageDropzoneProps) {
 
   const uploadFile = useCallback(async (file: File) => {
     if (process.env.NODE_ENV !== "development") {
-      return upload(`pets/${file.name}`, file, { access: "public", handleUploadUrl: "/api/uploads" });
+      return uploadPresigned(`pets/${file.name}`, file, { access: "public", handleUploadUrl: "/api/uploads" });
     }
 
     const formData = new FormData();

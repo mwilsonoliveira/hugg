@@ -6,7 +6,7 @@
 2. Crie `hugg-production` e `hugg-preview` com `turso db create <nome>`.
 3. Obtenha URLs com `turso db show <nome> --url` e tokens com `turso db tokens create <nome>`.
 4. Na Vercel, use Root Directory `apps/web` e crie Blob Stores públicos separados para Production e Preview.
-5. Configure `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `JWT_SECRET`, `BLOB_READ_WRITE_TOKEN` e `MAINTENANCE_MODE`. Tokens e `JWT_SECRET` devem ser sensitive.
+5. Configure `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `JWT_SECRET` e `MAINTENANCE_MODE`. Ao conectar um Blob Store novo, a Vercel usa OIDC e injeta `BLOB_STORE_ID`/`BLOB_WEBHOOK_PUBLIC_KEY` automaticamente; não é necessário criar `BLOB_READ_WRITE_TOKEN`. Tokens legados e `JWT_SECRET` devem ser sensitive.
 6. Aplique migrations com `pnpm --filter @hugg/database db:migrate` usando as variáveis de cada ambiente.
 
 O CLI permite `vercel env add TURSO_DATABASE_URL production --sensitive`. Use `vercel env pull .env.local` para desenvolvimento e não versione o arquivo.

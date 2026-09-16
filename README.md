@@ -59,7 +59,7 @@ Configure o Root Directory como `apps/web`, vincule um Blob Store público e def
 | `TURSO_DATABASE_URL` | banco de produção | banco de preview | `file:../../packages/database/prisma/dev.db` |
 | `TURSO_AUTH_TOKEN` | token de produção | token de preview | vazio |
 | `JWT_SECRET` | preserve o segredo atual | segredo próprio | segredo local |
-| `BLOB_READ_WRITE_TOKEN` | store de produção | store de preview | token de desenvolvimento |
+| Blob Store (OIDC) | store de produção conectado | store de preview conectado | store de desenvolvimento conectado |
 | `MAINTENANCE_MODE` | `false` normalmente | `false` | `false` |
 
 Nunca exponha tokens com prefixo `NEXT_PUBLIC_`. O provisionamento e o cutover estão em [docs/deployment.md](docs/deployment.md).
